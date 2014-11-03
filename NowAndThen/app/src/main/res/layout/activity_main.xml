@@ -36,6 +36,7 @@
 
     </RelativeLayout>
 
+    <!--
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -50,12 +51,13 @@
             android:padding="10dp"
             android:textSize="15dp"/>
 
-        <!-- To display picture taken -->
+
         <ImageView
             android:id="@+id/imgPreview"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"/>
 
     </LinearLayout>
+    -->
 
 </LinearLayout>
