@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -7,12 +7,4 @@
     tools:context="amaturehour.nt.ChoosePicture"
     android:background="#000">
 
-    <Button
-        android:id="@+id/tmpBtn"
-        android:layout_width="300dp"
-        android:layout_height="80dp"
-        android:gravity="center"
-        android:text="tmpBtn"
-        android:onClick="goToCamera"/>
-
-</RelativeLayout>
+</ImageView>
