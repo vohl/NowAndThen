@@ -2,7 +2,10 @@ package amaturehour.nt;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.hardware.Camera;
@@ -12,8 +15,15 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.net.Uri;
+
+import java.io.BufferedInputStream;
+import java.io.File;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 
 public class CustomCamera extends Activity implements PictureCallback, SurfaceHolder.Callback {
@@ -21,7 +31,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     public static final String EXTRA_CAMERA_DATA = "camera_data";
 
     private Camera mCamera;
-    private ImageView mCameraImage;
+    private ImageView mOverlayImage;
     private SurfaceView mCameraPreview;
     private byte[] mCameraData;
     private Boolean mIsCapturing;
@@ -35,14 +45,35 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        mCameraImage = (ImageView)findViewById(R.id.camera_image_view);
-        mCameraImage.setVisibility(View.INVISIBLE);
+        mOverlayImage = (ImageView)findViewById(R.id.overlay_image);
+        mOverlayImage.setVisibility(View.INVISIBLE);
 
         mCameraPreview = (SurfaceView)findViewById(R.id.preview_view);
         final SurfaceHolder surfaceHolder = mCameraPreview.getHolder();
         surfaceHolder.addCallback(this);
 
         mIsCapturing = true;
+
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
+        String thisBitch = uri.toString();
+        try{
+            URL aURL = new URL(thisBitch);
+            URLConnection conn = aURL.openConnection();
+            conn.connect();
+            InputStream is = conn.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            Bitmap bm = BitmapFactory.decodeStream(bis);
+            bis.close();
+            is.close();
+        }
+        catch(IOException e){
+            Log.e("dasd", "asdas", e);
+        }
+        //mOverlayImage.setAlpha((float) .75);
+        mOverlayImage.setVisibility(View.VISIBLE);
+
+
     }
 
     @Override
@@ -53,9 +84,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
                 mCamera = Camera.open();
                 mCamera.setDisplayOrientation(90);
                 mCamera.setPreviewDisplay(mCameraPreview.getHolder());
-                if(mIsCapturing){
-                    mCamera.startPreview();
-                }
+//                if(mIsCapturing){
+//                    mCamera.startPreview();
+//                }
             }
             catch(Exception e){
                 Toast.makeText(this, "Unable to open camera.", Toast.LENGTH_LONG).show();
@@ -104,17 +135,17 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if(mCamera != null){
-            try{
-                mCamera.setPreviewDisplay(holder);
-                if(mIsCapturing){
-                    mCamera.startPreview();
-                }
-            }
-            catch(IOException e){
-                Toast.makeText(CustomCamera.this, "Unable to start camera preview", Toast.LENGTH_LONG).show();
-            }
+        if (mCamera != null) {
+//            try {
+//                mCamera.setPreviewDisplay(holder);
+//                if (mIsCapturing) {
+//                    mCamera.startPreview();
+//                }
+//            } catch (IOException e) {
+//                Toast.makeText(CustomCamera.this, "Unable to start camera preview", Toast.LENGTH_LONG).show();
+//            }
         }
+
     }
 
     @Override

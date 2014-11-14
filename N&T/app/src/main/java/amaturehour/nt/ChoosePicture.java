@@ -24,6 +24,12 @@ public class ChoosePicture extends Activity {
         performFileSearch();
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        performFileSearch();
+//    }
+
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
