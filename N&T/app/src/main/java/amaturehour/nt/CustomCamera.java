@@ -88,7 +88,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
 
-        mTransparency = 75;
+        mTransparency = 255;
 
         mOverlayImage.setAlpha(mTransparency);
 
