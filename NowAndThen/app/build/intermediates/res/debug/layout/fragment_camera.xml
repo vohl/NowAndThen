@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="mobilecrew.nowandthen.CameraActivity$PlaceholderFragment">
+
+    <FrameLayout android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+     />
+
+    <Button
+        android:id="@+id/button_capture"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/camerabutton"
+     />
+
+    <SeekBar
+        android:id="@+id/opacity_slider"
+        android:layout_toLeftOf="@+id/button_capture"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginRight="60dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+     />
+
+    <SeekBar
+        android:id="@+id/orientation_slider"
+        android:layout_toRightOf="@+id/button_capture"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="60dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+     />
+
+</RelativeLayout>
+<!-- From: file:/Users/vohl/GitRepos/NowAndThen/NowAndThen/app/src/main/res/layout/fragment_camera.xml -->
