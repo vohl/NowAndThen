@@ -1,18 +1,23 @@
 package amaturehour.nt;
 
 import android.app.Activity;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
+import android.provider.MediaStore.Images;
 
 
 public class ChoosePicture extends Activity {
 
-    private static final String TAG = "NowAndThen";
+    private static final String TAG = "PicChoose";
+
+    public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE";
 
     private static final int READ_REQUEST_CODE = 42;
 
@@ -24,12 +29,6 @@ public class ChoosePicture extends Activity {
         performFileSearch();
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        performFileSearch();
-//    }
-
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
@@ -38,17 +37,18 @@ public class ChoosePicture extends Activity {
         // ACTION_GET_CONTENT is the intent to choose a file via the system's file
         // browser and to simply read/import data.
         // With this approach, the app imports a copy of the data, such as an image file.
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+
+        Intent intent = new Intent(Intent.ACTION_PICK, Images.Media.EXTERNAL_CONTENT_URI);
 
         // Filter to only show results that can be "opened", such as a
         // file (as opposed to a list of contacts or timezones)
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // Filter to show only images, using the image MIME data type.
         // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
         // To search for all documents available via installed storage providers,
         // it would be "*/*".
-        intent.setType("image/*");
+
+        Log.d(TAG, "Choosing...");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
@@ -57,26 +57,49 @@ public class ChoosePicture extends Activity {
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
 
+        super.onActivityResult(requestCode, resultCode, resultData);
+
         // The ACTION_OPEN_DOCUMENT intent was sent with the request code
         // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
         // response to some other intent, and the code below shouldn't run at all.
 
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK) {
             // The document selected by the user won't be returned in the intent.
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.
             // Pull that URI using resultData.getData().
-            Uri uri = null;
+            Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
+                String overlayImage = getFileOfUri(uri);
+
                 Intent customCameraIntent = new Intent(this, CustomCamera.class);
-                customCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
                 startActivity(customCameraIntent);
 
             }
         }
+        else{
+            Log.e(TAG, "Error getting Uri from activity");
+        }
     }
+
+    private String getFileOfUri(Uri uri){
+        String[] proj = {MediaStore.Images.Media.DATA};
+
+        CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+
+        cursor.moveToFirst();
+
+        String uriString = cursor.getString(column_index);
+        Log.i(TAG, "URIString: " + uriString);
+
+        return uriString;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

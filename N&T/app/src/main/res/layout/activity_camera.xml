@@ -1,10 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_camera_horizontal_margin"
-    android:paddingRight="@dimen/activity_camera_horizontal_margin"
-    android:paddingTop="@dimen/activity_camera_vertical_margin"
-    android:paddingBottom="@dimen/activity_camera_vertical_margin" tools:context="amaturehour.nt.CustomCamera"
-    android:background="#000"
+    android:layout_height="match_parent" tools:context="amaturehour.nt.CustomCamera"
     android:orientation="vertical">
 
     <SurfaceView
@@ -13,33 +9,32 @@
         android:layout_height="match_parent" />
 
     <ImageView
-        android:id="@+id/overlay_image"
+        android:id="@+id/supperimpose_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <Button
-        android:id="@+id/button_capture"
+        android:id="@+id/btnCapture"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@id/overlay_image"
+        android:layout_alignBottom="@id/preview_view"
         android:layout_marginBottom="7dp"
-        android:background="@drawable/camerabutton"
-        android:onClick="captureImage"/>
+        android:background="@drawable/camerabutton"/>
 
     <SeekBar
         android:layout_width="150dp"
         android:layout_height="35dp"
-        android:layout_alignBottom="@id/overlay_image"
-        android:layout_toLeftOf="@id/button_capture"
+        android:layout_alignBottom="@id/preview_view"
+        android:layout_toLeftOf="@id/btnCapture"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="25dp"/>
 
     <SeekBar
         android:layout_width="150dp"
         android:layout_height="35dp"
-        android:layout_alignBottom="@id/overlay_image"
-        android:layout_toRightOf="@id/button_capture"
+        android:layout_alignBottom="@id/preview_view"
+        android:layout_toRightOf="@id/btnCapture"
         android:layout_marginTop="50dp"
         android:layout_marginBottom="25dp"/>
 

@@ -13,7 +13,6 @@
         <activity
             android:name="amaturehour.nt.StartScreen"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +24,6 @@
             android:name="amaturehour.nt.ChoosePicture"
             android:label="@string/title_activity_choose_picture"
             android:parentActivityName="amaturehour.nt.StartScreen"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -35,7 +33,6 @@
             android:name="amaturehour.nt.CustomCamera"
             android:label="@string/title_activity_camera"
             android:parentActivityName="amaturehour.nt.ChoosePicture"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -45,7 +42,6 @@
             android:name="amaturehour.nt.EditPicture"
             android:label="@string/title_activity_edit_picture"
             android:parentActivityName="amaturehour.nt.CustomCamera"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
