@@ -20,8 +20,7 @@
             android:layout_height="80dp"
             android:gravity="center"
             android:background="@drawable/takepicturetext"
-            android:layout_marginBottom="10dp"
-            android:onClick="takePicture"/>
+            android:layout_marginBottom="10dp"/>
 
         <Button
             android:id="@+id/btnSuperImpose"
@@ -29,8 +28,7 @@
             android:layout_height="80dp"
             android:gravity="center"
             android:background="@drawable/superimpose"
-            android:layout_below="@id/btnCapturePicture"
-            android:onClick="superImpose"/>
+            android:layout_below="@id/btnCapturePicture"/>
     </RelativeLayout>
 
 </LinearLayout>

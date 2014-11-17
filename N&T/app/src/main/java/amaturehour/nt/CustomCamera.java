@@ -2,7 +2,12 @@ package amaturehour.nt;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.hardware.Camera;
@@ -10,9 +15,10 @@ import android.hardware.Camera.PictureCallback;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import java.io.IOException;
 
 
@@ -20,13 +26,28 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     public static final String EXTRA_CAMERA_DATA = "camera_data";
 
+    private static final String TAG = "Camera";
+
     private Camera mCamera;
-    private ImageView mCameraImage;
+    private Button mCapture;
+    private ImageView mOverlayImage;
     private SurfaceView mCameraPreview;
+    private Bitmap mOverlayBitMap;
     private byte[] mCameraData;
     private Boolean mIsCapturing;
+    private String mFileName;
+    private int mTransparency;
+    private int mOrientation;
+
+    private OnClickListener btnCaptureClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            captureImage(v);
+        }
+    };
 
     public void captureImage(View view){
+
         mCamera.takePicture(null, null, this);
     }
 
@@ -35,14 +56,43 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        mCameraImage = (ImageView)findViewById(R.id.camera_image_view);
-        mCameraImage.setVisibility(View.INVISIBLE);
+        mCapture = (Button) findViewById(R.id.btnCapture);
+        mCapture.setOnClickListener(btnCaptureClickListener);
 
         mCameraPreview = (SurfaceView)findViewById(R.id.preview_view);
         final SurfaceHolder surfaceHolder = mCameraPreview.getHolder();
         surfaceHolder.addCallback(this);
 
+        mOverlayImage = (ImageView)findViewById(R.id.supperimpose_view);
+        mOverlayImage.setVisibility(View.INVISIBLE);
+
         mIsCapturing = true;
+
+        Intent intent = getIntent();
+        mFileName = intent.getStringExtra(ChoosePicture.OVERLAY_IMAGE);
+        try {
+            ExifInterface exif = new ExifInterface(mFileName);
+            mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        }
+        catch (IOException e){
+            Log.e(TAG, "Error creating Exif from " + mFileName);
+        }
+
+        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(ChoosePicture.OVERLAY_IMAGE));
+        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation);
+        if(mOverlayBitMap == null){
+            Log.e(TAG, "Error making the Bitmap - Null");
+        }
+        else{
+            Log.i(TAG, "Bitmap success - Not Null");
+            mOverlayImage.setImageBitmap(mOverlayBitMap);
+        }
+
+        mTransparency = 75;
+
+        mOverlayImage.setAlpha(mTransparency);
+
+        mOverlayImage.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -123,5 +173,41 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation){
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return bitmap;
     }
 }
