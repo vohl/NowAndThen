@@ -76,7 +76,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         mIsCapturing = true;
 
         Intent intent = getIntent();
-        mFileName = intent.getStringExtra(ChoosePicture.OVERLAY_IMAGE);
+        mFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
         try {
             ExifInterface exif = new ExifInterface(mFileName);
             mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -85,7 +85,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             Log.e(TAG, "Error creating Exif from " + mFileName);
         }
 
-        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(ChoosePicture.OVERLAY_IMAGE));
+        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE));
         mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation);
         if(mOverlayBitMap == null){
             Log.e(TAG, "Error making the Bitmap - Null");
@@ -181,8 +181,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mCamera.stopPreview();
-        mCamera.release();
+        //NEED TO HANDLE EXCEPTIONS HERE!!!
+//        mCamera.stopPreview();
+//        mCamera.release();
     }
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation){
