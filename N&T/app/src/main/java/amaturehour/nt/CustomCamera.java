@@ -1,5 +1,6 @@
 package amaturehour.nt;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -56,6 +57,12 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+        decorView.setSystemUiVisibility(uiOptions);
+        ActionBar actionBar = getActionBar();
+        actionBar.hide();
+
         mCapture = (Button) findViewById(R.id.btnCapture);
         mCapture.setOnClickListener(btnCaptureClickListener);
 
@@ -88,7 +95,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
 
-        mTransparency = 255;
+        mTransparency = 122;
 
         mOverlayImage.setAlpha(mTransparency);
 
@@ -169,10 +176,13 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        mCamera.stopPreview();
+        mCamera.release();
     }
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation){
