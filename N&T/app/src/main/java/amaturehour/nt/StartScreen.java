@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.style.SuperscriptSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,19 +22,26 @@ public class StartScreen extends Activity {
 
     private static final String TAG = "StartActivity";
     public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE";
+    public final static String UNDERLAY_IMAGE = "amaturehour.nt.IMAGE";
+    private static final int CAMERA_INTENT_FLAG = 1;
+    private static final int SUPERIMPOSE_INTENT_FLAG = 2;
+    private int btnFlag;
     private static final int READ_REQUEST_CODE = 42;
+    private String firstSIImage;
 
     private OnClickListener btnCapturePictureClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            performFileSearch();
+            btnFlag = CAMERA_INTENT_FLAG;
+            performFileSearch(CAMERA_INTENT_FLAG);
         }
     };
 
     private OnClickListener btnSuperImposeClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            superImpose(v);
+            btnFlag = SUPERIMPOSE_INTENT_FLAG;
+            performFileSearch(SUPERIMPOSE_INTENT_FLAG);
         }
 
     };
@@ -43,14 +49,14 @@ public class StartScreen extends Activity {
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
-    public void performFileSearch() {
+    public void performFileSearch(int intentFlag) {
 
         // ACTION_GET_CONTENT is the intent to choose a file via the system's file
         // browser and to simply read/import data.
         // With this approach, the app imports a copy of the data, such as an image file.
 
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
+        intent.addFlags(intentFlag);
         // Filter to only show results that can be "opened", such as a
         // file (as opposed to a list of contacts or timezones)
 
@@ -60,6 +66,7 @@ public class StartScreen extends Activity {
         // it would be "*/*".
 
         Log.d(TAG, "Choosing...");
+        Log.e(TAG, "Intent flag we send: " + btnFlag);
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
@@ -84,10 +91,24 @@ public class StartScreen extends Activity {
                 uri = resultData.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
                 String overlayImage = getFileOfUri(uri);
-
-                Intent customCameraIntent = new Intent(this, CustomCamera.class);
-                customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
-                startActivity(customCameraIntent);
+                Log.e(TAG, "Intent flag we get: " + btnFlag);
+                //check to see if current intent was called by custom camera
+                if(btnFlag == CAMERA_INTENT_FLAG) {
+                    Intent customCameraIntent = new Intent(this, CustomCamera.class);
+                    customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
+                    startActivity(customCameraIntent);
+                }
+                else if(btnFlag == SUPERIMPOSE_INTENT_FLAG && firstSIImage == null) {
+                    firstSIImage = overlayImage;
+                    btnFlag = SUPERIMPOSE_INTENT_FLAG;
+                    performFileSearch(SUPERIMPOSE_INTENT_FLAG);
+                }
+                else if(btnFlag == SUPERIMPOSE_INTENT_FLAG && firstSIImage != null){
+                    Intent editPictureIntent = new Intent(this, EditPicture.class);
+                    editPictureIntent.putExtra(UNDERLAY_IMAGE, firstSIImage);
+                    editPictureIntent.putExtra(OVERLAY_IMAGE, overlayImage);
+                    startActivity(editPictureIntent);
+                }
 
             }
         }
@@ -146,8 +167,4 @@ public class StartScreen extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void superImpose(View view) {
-        Intent pic_intent = new Intent(this, EditPicture.class);
-        startActivity(pic_intent);
-    }
 }
