@@ -24,6 +24,8 @@ public class EditPicture extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+        ActionBar actionBar = getActionBar();
+        actionBar.hide();
     }
 
 

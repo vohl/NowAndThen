@@ -1,5 +1,6 @@
 package amaturehour.nt;
 
+import android.content.Context;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.util.DisplayMetrics;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import java.io.IOException;
 
@@ -31,6 +34,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     private Camera mCamera;
     private Button mCapture;
+    private SeekBar mTransparencySeekBar;
     private ImageView mOverlayImage;
     private SurfaceView mCameraPreview;
     private Bitmap mOverlayBitMap;
@@ -40,12 +44,28 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private int mTransparency;
     private int mOrientation;
 
+    private static final int INDEX_OF_WIDTH = 0;
+    private static final int INDEX_OF_HEIGHT = 1;
+    private static final int INDEX_OF_DENSITY = 2;
+    private static final int STRETCH_CONSTANT = 96;
+
     private OnClickListener btnCaptureClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             captureImage(v);
         }
     };
+
+//    private OnClickListener transparentSliderListener = new OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            changeTransparency(v);
+//        }
+//    }
+//
+//    private void changeTransparency(View v) {
+//
+//    }
 
     public void captureImage(View view){
 
@@ -76,6 +96,15 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         mIsCapturing = true;
 
         Intent intent = getIntent();
+        int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
+
+        int displayWidth = screenInfo[INDEX_OF_WIDTH];
+        //need to add a little vertical stretch because of the action bar dimensions??
+        int displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
+        int displayDensity = screenInfo[INDEX_OF_DENSITY];
+
+        Log.e(TAG, "display width: " + displayWidth + " display height: " + displayHeight);
+
         mFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
         try {
             ExifInterface exif = new ExifInterface(mFileName);
@@ -86,7 +115,8 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         }
 
         mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE));
-        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation);
+        mOverlayBitMap = getResizedBitmap(mOverlayBitMap, displayHeight, displayWidth);
+        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, displayWidth, displayHeight);
         if(mOverlayBitMap == null){
             Log.e(TAG, "Error making the Bitmap - Null");
         }
@@ -95,11 +125,27 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
 
+        //mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
         mTransparency = 122;
 
         mOverlayImage.setAlpha(mTransparency);
 
         mOverlayImage.setVisibility(View.VISIBLE);
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        return resizedBitmap;
     }
 
     @Override
@@ -186,7 +232,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 //        mCamera.release();
     }
 
-    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation){
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation, int width, int height){
         Matrix matrix = new Matrix();
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
@@ -218,7 +264,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             default:
                 return bitmap;
         }
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         return bitmap;
     }
 }
