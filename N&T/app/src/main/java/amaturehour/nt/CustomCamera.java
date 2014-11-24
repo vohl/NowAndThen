@@ -42,7 +42,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private byte[] mCameraData;
     private Boolean mIsCapturing;
     private String mFileName;
-    private int mTransparency;
     private int mOrientation;
 
     private static final int MIN_TRANSPARENCY = 0;
@@ -116,21 +115,16 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
 
-        mTransparency = MID_TRANSPARENCY;
-
         mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
 
         mTransparencySeekBar.setMax(MAX_TRANSPARENCY);
-
+        mTransparencySeekBar.setProgress(MID_TRANSPARENCY);
         mTransparencySeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-                Log.e(TAG, "SeekBar detected!!!!");
                 if(progress <= MAX_TRANSPARENCY) {
-                    mTransparency = progress;
-                    mOverlayImage.setAlpha(mTransparency);
+                    mOverlayImage.setAlpha(progress);
                 }
-                Log.e(TAG, "Progress: " + progress);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -142,11 +136,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             }
         });
 
-//        mTransparency = mTransparencySeekBar.getProgress();
-        Log.e(TAG, "Progress: " + mTransparency);
-
-
-        mOverlayImage.setAlpha(mTransparency);
+        mOverlayImage.setAlpha(MID_TRANSPARENCY);
 
         mOverlayImage.setVisibility(View.VISIBLE);
     }
