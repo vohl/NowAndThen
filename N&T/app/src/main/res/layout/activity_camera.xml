@@ -3,15 +3,18 @@
     android:layout_height="match_parent" tools:context="amaturehour.nt.CustomCamera"
     android:orientation="vertical">
 
+
     <SurfaceView
         android:id="@+id/preview_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
 
     <ImageView
         android:id="@+id/supperimpose_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
 
     <Button
         android:id="@+id/btnCapture"
@@ -26,6 +29,7 @@
         android:id="@+id/sliderTransparency"
         android:layout_width="150dp"
         android:layout_height="35dp"
+        android:progress="125"
         android:layout_alignBottom="@id/preview_view"
         android:layout_toLeftOf="@id/btnCapture"
         android:layout_marginTop="50dp"

@@ -2,6 +2,7 @@ package amaturehour.nt;
 
 import android.content.Context;
 import android.app.ActionBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -44,6 +45,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private int mTransparency;
     private int mOrientation;
 
+    private static final int MIN_TRANSPARENCY = 0;
+    private static final int MID_TRANSPARENCY = 125;
+    private static final int MAX_TRANSPARENCY = 250;
     private static final int INDEX_OF_WIDTH = 0;
     private static final int INDEX_OF_HEIGHT = 1;
     private static final int INDEX_OF_DENSITY = 2;
@@ -55,17 +59,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             captureImage(v);
         }
     };
-
-//    private OnClickListener transparentSliderListener = new OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            changeTransparency(v);
-//        }
-//    }
-//
-//    private void changeTransparency(View v) {
-//
-//    }
 
     public void captureImage(View view){
 
@@ -80,8 +73,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
-        ActionBar actionBar = getActionBar();
-        actionBar.hide();
 
         mCapture = (Button) findViewById(R.id.btnCapture);
         mCapture.setOnClickListener(btnCaptureClickListener);
@@ -125,8 +116,35 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
 
-        //mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
-        mTransparency = 122;
+        mTransparency = MID_TRANSPARENCY;
+
+        mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
+
+        mTransparencySeekBar.setMax(MAX_TRANSPARENCY);
+
+        mTransparencySeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+                Log.e(TAG, "SeekBar detected!!!!");
+                if(progress <= MAX_TRANSPARENCY) {
+                    mTransparency = progress;
+                    mOverlayImage.setAlpha(mTransparency);
+                }
+                Log.e(TAG, "Progress: " + progress);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+//        mTransparency = mTransparencySeekBar.getProgress();
+        Log.e(TAG, "Progress: " + mTransparency);
+
 
         mOverlayImage.setAlpha(mTransparency);
 

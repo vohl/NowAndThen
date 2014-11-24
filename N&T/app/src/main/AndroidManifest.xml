@@ -22,6 +22,7 @@
         </activity>
         <activity
             android:name="amaturehour.nt.ChoosePicture"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
             android:label="@string/title_activity_choose_picture"
             android:parentActivityName="amaturehour.nt.StartScreen"
             android:screenOrientation="portrait">
@@ -32,6 +33,7 @@
         <activity
             android:name="amaturehour.nt.CustomCamera"
             android:label="@string/title_activity_camera"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
             android:parentActivityName="amaturehour.nt.ChoosePicture"
             android:screenOrientation="portrait">
             <meta-data
