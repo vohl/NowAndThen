@@ -45,6 +45,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private String mFileName;
     private int mOrientation;
 
+    private static final int MID_ORIENTATION_RANGE = 5;
     private static final int MID_ORIENTATION = 50;
     private static final int MIN_TRANSPARENCY = 0;
     private static final int MID_TRANSPARENCY = 125;
@@ -163,9 +164,14 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         mOrientationSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-               Log.e(TAG, "Progress: " + progress);
+               Log.i(TAG, "Progress before gravity: " + progress);
                progress -= MID_ORIENTATION;
-               mOverlayImage.setRotation(progress);
+               if((progress <= MID_ORIENTATION_RANGE && progress >= 0) ||
+                       (progress <= 0 && progress >= -MID_ORIENTATION_RANGE)) {
+                   progress = 0;
+               }
+                Log.i(TAG, "Progress after gravity: " + progress);
+                mOverlayImage.setRotation(progress);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -269,7 +275,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        
     }
 
     @Override
