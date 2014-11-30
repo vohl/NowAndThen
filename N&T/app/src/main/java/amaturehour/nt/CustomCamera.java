@@ -36,6 +36,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private Camera mCamera;
     private Button mCapture;
     private SeekBar mTransparencySeekBar;
+    private SeekBar mOrientationSeekBar;
     private ImageView mOverlayImage;
     private SurfaceView mCameraPreview;
     private Bitmap mOverlayBitMap;
@@ -44,6 +45,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private String mFileName;
     private int mOrientation;
 
+    private static final int MID_ORIENTATION = 50;
     private static final int MIN_TRANSPARENCY = 0;
     private static final int MID_TRANSPARENCY = 125;
     private static final int MAX_TRANSPARENCY = 250;
@@ -105,7 +107,17 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         }
 
         mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE));
-        mOverlayBitMap = getResizedBitmap(mOverlayBitMap, displayHeight, displayWidth);
+
+        Log.e(TAG, "Bitmap height: " + mOverlayBitMap.getHeight() + " Bitmap width: " + mOverlayBitMap.getWidth());
+        Log.e(TAG, "Display height: " + displayHeight + " Display width: " + displayWidth);
+
+        //not sure if we need this
+        mOverlayBitMap.setDensity(displayDensity);
+
+        //check to see if we need to resize the bitmap
+        if(mOverlayBitMap.getHeight() > displayHeight || mOverlayBitMap.getWidth() > displayWidth)
+            mOverlayBitMap = getResizedBitmap(mOverlayBitMap, displayHeight, displayWidth);
+
         mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, displayWidth, displayHeight);
         if(mOverlayBitMap == null){
             Log.e(TAG, "Error making the Bitmap - Null");
@@ -114,11 +126,17 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             Log.i(TAG, "Bitmap success - Not Null");
             mOverlayImage.setImageBitmap(mOverlayBitMap);
         }
+        //set the transparency to the mid level initially
+        mOverlayImage.setAlpha(MID_TRANSPARENCY);
+        //make the image visible
+        mOverlayImage.setVisibility(View.VISIBLE);
 
+        //get and respond to all the changes to the transparency slider
         mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
 
         mTransparencySeekBar.setMax(MAX_TRANSPARENCY);
         mTransparencySeekBar.setProgress(MID_TRANSPARENCY);
+
         mTransparencySeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
@@ -136,9 +154,30 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             }
         });
 
-        mOverlayImage.setAlpha(MID_TRANSPARENCY);
+        //get and respond to all the changes to the orientation slider
+        mOrientationSeekBar = (SeekBar)findViewById(R.id.sliderRotater);
 
-        mOverlayImage.setVisibility(View.VISIBLE);
+        mOrientationSeekBar.setProgress(MID_ORIENTATION);
+
+
+        mOrientationSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+               Log.e(TAG, "Progress: " + progress);
+               progress -= MID_ORIENTATION;
+               mOverlayImage.setRotation(progress);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
