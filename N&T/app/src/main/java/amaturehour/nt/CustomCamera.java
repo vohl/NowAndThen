@@ -1,7 +1,6 @@
 package amaturehour.nt;
 
-import android.content.Context;
-import android.app.ActionBar;
+import android.view.Surface;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.app.Activity;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.util.DisplayMetrics;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -28,17 +26,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
-import android.net.Uri;
 import android.os.Environment;
 import java.text.SimpleDateFormat;
 import java.io.FileNotFoundException;
-
+import java.util.List;
 
 public class CustomCamera extends Activity implements PictureCallback, SurfaceHolder.Callback {
-
-    public static final String EXTRA_CAMERA_DATA = "camera_data";
-
     private static final String TAG = "Camera";
+    public final static String OVERLAY_IMAGE2 = "amaturehour.nt.CUSTOMO";
+    public final static String UNDERLAY_IMAGE2 = "amaturehour.nt.CUSTOMU";
 
     private Camera mCamera;
     private Button mCapture;
@@ -47,7 +43,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private ImageView mOverlayImage;
     private SurfaceView mCameraPreview;
     private Bitmap mOverlayBitMap;
-    private byte[] mCameraData;
     private Boolean mIsCapturing;
     private String mFileName;
     private int mOrientation;
@@ -55,13 +50,16 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private static final int MEDIA_TYPE_IMAGE = 1;
     private static final int MID_ORIENTATION_RANGE = 5;
     private static final int MID_ORIENTATION = 50;
-    private static final int MIN_TRANSPARENCY = 0;
     private static final int MID_TRANSPARENCY = 125;
     private static final int MAX_TRANSPARENCY = 250;
     private static final int INDEX_OF_WIDTH = 0;
     private static final int INDEX_OF_HEIGHT = 1;
     private static final int INDEX_OF_DENSITY = 2;
     private static final int STRETCH_CONSTANT = 96;
+    private static int displayWidth;
+    private static int displayHeight;
+    private static int displayDensity;
+    private static int rotationAngle;
 
     private OnClickListener btnCaptureClickListener = new OnClickListener() {
         @Override
@@ -99,10 +97,10 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         Intent intent = getIntent();
         int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
 
-        int displayWidth = screenInfo[INDEX_OF_WIDTH];
+        displayWidth = screenInfo[INDEX_OF_WIDTH];
         //need to add a little vertical stretch because of the action bar dimensions??
-        int displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
-        int displayDensity = screenInfo[INDEX_OF_DENSITY];
+        displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
+        displayDensity = screenInfo[INDEX_OF_DENSITY];
 
         Log.e(TAG, "display width: " + displayWidth + " display height: " + displayHeight);
 
@@ -125,11 +123,13 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
 
 
-        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, displayWidth, displayHeight);
+        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, mOverlayBitMap.getWidth(), mOverlayBitMap.getHeight());
 
         //check to see if we need to resize the bitmap
+
         if(mOverlayBitMap.getHeight() > displayHeight || mOverlayBitMap.getWidth() > displayWidth)
             mOverlayBitMap = getResizedBitmap(mOverlayBitMap, displayHeight, displayWidth);
+
 
         if(mOverlayBitMap == null){
             Log.e(TAG, "Error making the Bitmap - Null");
@@ -182,6 +182,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
                    progress = 0;
                }
                 Log.i(TAG, "Progress after gravity: " + progress);
+                rotationAngle = progress;
                 mOverlayImage.setRotation(progress);
             }
 
@@ -218,7 +219,18 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             try{
                 mCamera = Camera.open();
                 mCamera.setDisplayOrientation(90);
+
+
+
                 mCamera.setPreviewDisplay(mCameraPreview.getHolder());
+                Camera.Parameters parameter = mCamera.getParameters();
+                List<Camera.Size> sizes = parameter.getSupportedPictureSizes();
+                parameter.setPictureSize(sizes.get(0).width, sizes.get(0).height);
+                parameter.set("orientation", "portrait");
+                List<Camera.Size> size = parameter.getSupportedPreviewSizes();
+                parameter.setPreviewSize(size.get(0).width, size.get(0).height);
+                mCamera.setParameters(parameter);
+                mCamera.startPreview();
                 if(mIsCapturing){
                     mCamera.startPreview();
                 }
@@ -260,11 +272,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         return super.onOptionsItemSelected(item);
     }
 
-    /** Create a file Uri for saving an image or video */
-    private static Uri getOutputMediaFileUri(int type){
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(int type){
         // To be safe, you should check that the SDCard is mounted
@@ -295,9 +302,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
         return mediaFile;
     }
+
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
-
         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
         if (pictureFile == null){
             Log.e(TAG, "Error creating media file, check storage permissions");
@@ -306,17 +313,23 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         try {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
-            Log.e(TAG, "File written out!!! (theoretically)" + data.toString());
+            Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
             fos.close();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File not found: " + e.getMessage());
         } catch (IOException e) {
             Log.d(TAG, "Error accessing file: " + e.getMessage());
         }
+        String path_to_captured_image = pictureFile.toString();
 
-        mCameraData = data;
         Intent edit_intent = new Intent(this, EditPicture.class);
-        edit_intent.putExtra(EXTRA_CAMERA_DATA, mCameraData);
+        edit_intent.addFlags(2);
+        edit_intent.putExtra("scaleWidth", displayWidth);
+        edit_intent.putExtra("scaleHeight", displayHeight);
+        edit_intent.putExtra("Dense", displayDensity);
+        edit_intent.putExtra("thisMayNotBeUsed", rotationAngle);
+        edit_intent.putExtra(OVERLAY_IMAGE2, path_to_captured_image);
+        edit_intent.putExtra(UNDERLAY_IMAGE2, mFileName);
         startActivity(edit_intent);
     }
 
@@ -351,29 +364,11 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
                 return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
             case ExifInterface.ORIENTATION_ROTATE_180:
                 matrix.setRotate(180);
                 break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
             case ExifInterface.ORIENTATION_ROTATE_90:
                 matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
                 break;
             default:
                 return bitmap;

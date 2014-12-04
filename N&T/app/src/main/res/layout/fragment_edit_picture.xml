@@ -10,6 +10,19 @@
     android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
     tools:context="amaturehour.nt.EditPicture$PlaceholderFragment"
     >
+    
+        <ImageView
+            android:id="@+id/uneditable_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
+    
+        <SurfaceView
+            android:id="@+id/editable_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
 
         <Button
             android:id="@+id/square_cut"
@@ -17,29 +30,26 @@
             android:layout_height="92dp"
             android:layout_marginLeft="5dp"
             android:layout_marginBottom="10dp"
-            android:layout_alignParentBottom="true"
-        />
+            android:layout_alignParentBottom="true"/>
 
         <Button
-            android:id="@+id/circle_cut"
+            android:id="@+id/finish_but"
             android:layout_width="92dp"
             android:layout_height="92dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="10dp"
-            android:layout_toRightOf="@+id/square_cut"
-        />
+            android:layout_toRightOf="@+id/square_cut"/>
 
         <Button
-            android:id="@+id/triangle_cut"
+            android:id="@+id/circle_cut"
             android:layout_width="92dp"
             android:layout_height="92dp"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="10dp"
             android:layout_marginRight="5dp"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/circle_cut"
-        />
+            android:layout_toRightOf="@+id/finish_but"/>
 
 </RelativeLayout>

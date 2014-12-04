@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,8 +25,8 @@ public class StartScreen extends Activity {
     private Button mSuperImpose;
 
     private static final String TAG = "StartActivity";
-    public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE";
-    public final static String UNDERLAY_IMAGE = "amaturehour.nt.IMAGE";
+    public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE2";
+    public final static String UNDERLAY_IMAGE = "amaturehour.nt.IMAGE1";
     private static final int CAMERA_BUTTON = 1;
     private static final int SUPERIMPOSE_BUTTON = 2;
     private int buttonPressed;
@@ -121,6 +120,7 @@ public class StartScreen extends Activity {
                 }
                 else if(buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage != null){
                     Intent editPictureIntent = new Intent(this, EditPicture.class);
+                    editPictureIntent.addFlags(1);
                     editPictureIntent.putExtra("ScreenInformation", screenInfo);
                     editPictureIntent.putExtra(UNDERLAY_IMAGE, firstSIImage);
                     editPictureIntent.putExtra(OVERLAY_IMAGE, overlayImage);

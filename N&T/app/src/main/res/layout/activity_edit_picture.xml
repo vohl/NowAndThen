@@ -1,4 +1,49 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    tools:context="amaturehour.nt.EditPicture" tools:ignore="MergeRootFrame" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="amaturehour.nt.EditPicture"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/uneditable_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
+
+    <SurfaceView
+        android:id="@+id/editable_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
+
+    <Button
+        android:id="@+id/square_cut"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:id="@+id/finish_but"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toRightOf="@+id/square_cut"/>
+
+    <Button
+        android:id="@+id/circle_cut"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/finish_but"/>
+
+</RelativeLayout>
