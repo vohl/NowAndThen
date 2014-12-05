@@ -22,7 +22,7 @@
             android:layout_width="300dp"
             android:layout_height="100dp"
             android:gravity="center"
-            android:background="@drawable/takeapic"
+            android:background="@drawable/takepicturetext"
             android:layout_marginBottom="10dp"/>
 
         <Button
@@ -30,7 +30,7 @@
             android:layout_width="300dp"
             android:layout_height="100dp"
             android:gravity="center"
-            android:background="@drawable/superimpose"
+            android:background="@drawable/superimposebutton"
             android:layout_below="@id/btnCapturePicture"/>
     </RelativeLayout>
 
