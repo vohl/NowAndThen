@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -175,6 +176,7 @@ public class EditPicture extends Activity{
 
             if(mUneditableBitmap.getHeight() > displayHeight || mUneditableBitmap.getWidth() > displayWidth)
                 mUneditableBitmap = getResizedBitmap(mUneditableBitmap, displayHeight, displayWidth);
+
             if(mUneditableBitmap == null){
                 Log.e(TAG, "Error making the Bitmap - Null");
             }
@@ -211,30 +213,12 @@ public class EditPicture extends Activity{
             mUneditableImage.setVisibility(View.VISIBLE);
         }
 
+        Bitmap[] bmpArray = {mEditableBitmap, mUneditableBitmap};
 
-        mEditableBitmap = combineBitmap(mEditableBitmap, mUneditableBitmap);
-        mEditableImage.setImageBitmap(mEditableBitmap);
-        mEditableImage.setVisibility(View.VISIBLE);
-
-//        int bytes = mEditableBitmap.getByteCount();
-//        ByteBuffer bB = ByteBuffer.allocate(bytes);
-//        mEditableBitmap.copyPixelsToBuffer(bB);
-//        byte[] data = bB.array();
-//
-//        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-//        try {
-//            FileOutputStream fos = new FileOutputStream(pictureFile);
-//            fos.write(data);
-//            Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
-//            Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
-//            fos.flush();
-//            fos.close();
-//
-//        } catch (FileNotFoundException e) {
-//            Log.d(TAG, "File not found: " + e.getMessage());
-//        } catch (IOException e) {
-//            Log.d(TAG, "Error accessing file: " + e.getMessage());
-//        }
+       new ProcessImageTask().execute(bmpArray);
+//       mEditableImage.setVisibility(View.INVISIBLE);
+//       mEditableBitmap = combineBitmap(bmpArray);
+//       mEditableImage.setImageBitmap(mEditableBitmap);
 
     }
 
@@ -344,8 +328,8 @@ public class EditPicture extends Activity{
         return resizedBitmap;
     }
 
-    public Bitmap combineBitmap(Bitmap srcBmp1, Bitmap srcBmp2) {
-        Bitmap combo = Bitmap.createScaledBitmap(srcBmp1, srcBmp1.getWidth(), srcBmp1.getHeight(), false);
+    public Bitmap combineBitmap(Bitmap[] srcBmp) {
+        Bitmap combo = Bitmap.createScaledBitmap(srcBmp[0], srcBmp[0].getWidth(), srcBmp[0].getHeight(), false);
 //        Canvas wideBmpCanvas;
 
         // assume all of the src bitmaps are the same height & width
@@ -353,12 +337,12 @@ public class EditPicture extends Activity{
 //                srcBmps[0].getHeight(), srcBitmaps[0].getConfig());
 
 
-        for (int i = 0; i < srcBmp1.getWidth(); i++) {
-            for(int j = 0; j < srcBmp1.getHeight(); j++){
-                if(i < srcBmp1.getWidth()/2)
-                    combo.setPixel(i, j, srcBmp1.getPixel(i, j));
+        for (int i = 0; i < srcBmp[0].getWidth(); i++) {
+            for(int j = 0; j < srcBmp[0].getHeight(); j++){
+                if(i < srcBmp[0].getWidth()/2)
+                    combo.setPixel(i, j, srcBmp[0].getPixel(i, j));
                 else
-                    combo.setPixel(i, j, srcBmp2.getPixel(i, j));
+                    combo.setPixel(i, j, srcBmp[1].getPixel(i, j));
             }
         }
 
@@ -371,5 +355,38 @@ public class EditPicture extends Activity{
             matrix.postRotate(90);
             mBitmap = Bitmap.createBitmap(mBitmap , 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
             return mBitmap;
+    }
+
+    private class ProcessImageTask extends AsyncTask<Bitmap[], Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Bitmap[]... params) {
+            return combineBitmap(params[0]);
+        }
+
+        protected void onPostExecute(Bitmap result){
+            mEditableImage.setImageBitmap(result);
+            mEditableImage.setVisibility(View.VISIBLE);
+
+//        int bytes = mEditableBitmap.getByteCount();
+//        ByteBuffer bB = ByteBuffer.allocate(bytes);
+//        mEditableBitmap.copyPixelsToBuffer(bB);
+//        byte[] data = bB.array();
+//
+//        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//        try {
+//            FileOutputStream fos = new FileOutputStream(pictureFile);
+//            fos.write(data);
+//            Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
+//            Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+//            fos.flush();
+//            fos.close();
+//
+//        } catch (FileNotFoundException e) {
+//            Log.d(TAG, "File not found: " + e.getMessage());
+//        } catch (IOException e) {
+//            Log.d(TAG, "Error accessing file: " + e.getMessage());
+//        }
+        }
     }
 }
