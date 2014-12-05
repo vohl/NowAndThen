@@ -108,6 +108,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         try {
             ExifInterface exif = new ExifInterface(mFileName);
             mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            Log.e(TAG, "Orientation: " + mOrientation);
         }
         catch (IOException e){
             Log.e(TAG, "Error creating Exif from " + mFileName);
@@ -219,8 +220,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             try{
                 mCamera = Camera.open();
                 mCamera.setDisplayOrientation(90);
-
-
 
                 mCamera.setPreviewDisplay(mCameraPreview.getHolder());
                 Camera.Parameters parameter = mCamera.getParameters();
@@ -361,6 +360,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation, int width, int height){
         Matrix matrix = new Matrix();
+
+        Log.e(TAG, "Orientation value: " + orientation);
+
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
                 return bitmap;
@@ -368,6 +370,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
                 matrix.setRotate(180);
                 break;
             case ExifInterface.ORIENTATION_ROTATE_90:
+
                 matrix.setRotate(90);
                 break;
             default:

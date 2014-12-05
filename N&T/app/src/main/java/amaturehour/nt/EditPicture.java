@@ -105,6 +105,8 @@ public class EditPicture extends Activity{
             try {
                 ExifInterface exif = new ExifInterface(firstFileName);
                 mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+                Log.e(TAG, "Orientation: " + mOrientation);
+
             }
             catch (IOException e){
                 Log.e(TAG, "Error creating Exif from " + firstFileName);
@@ -132,6 +134,8 @@ public class EditPicture extends Activity{
                 Log.e(TAG, "Error creating Exif from " + secondFileName);
             }
             mEditableBitmap = BitmapFactory.decodeFile(secondFileName);
+
+
             mEditableBitmap.setDensity(displayDensity);
             mEditableBitmap = rotateBitmap(mEditableBitmap, mOrientation, mEditableBitmap.getWidth(), mEditableBitmap.getHeight());
 
@@ -162,6 +166,7 @@ public class EditPicture extends Activity{
             mUneditableBitmap.setDensity(displayDensity);
             mUneditableBitmap = rotateBitmap(mUneditableBitmap, mOrientation, mUneditableBitmap.getWidth(), mUneditableBitmap.getHeight());
 
+
             if(mUneditableBitmap.getHeight() > displayHeight || mUneditableBitmap.getWidth() > displayWidth)
                 mUneditableBitmap = getResizedBitmap(mUneditableBitmap, displayHeight, displayWidth);
             if(mUneditableBitmap == null){
@@ -183,7 +188,10 @@ public class EditPicture extends Activity{
             mEditableBitmap = BitmapFactory.decodeFile(secondFileName);
             mEditableBitmap.setDensity(displayDensity);
 
-            mEditableBitmap = rotateBitmap(mEditableBitmap, mOrientation, mEditableBitmap.getWidth(), mEditableBitmap.getHeight());
+            //mEditableBitmap = rotateBitmap(mEditableBitmap, mOrientation, mEditableBitmap.getWidth(), mEditableBitmap.getHeight());
+            if (mEditableBitmap.getWidth() > mEditableBitmap.getHeight()) {
+                mEditableBitmap = fixOrientation(mEditableBitmap);
+            }
 
             if(mEditableBitmap.getHeight() > displayHeight || mEditableBitmap.getWidth() > displayWidth)
                 mEditableBitmap = getResizedBitmap(mEditableBitmap, displayHeight, displayWidth);
@@ -240,6 +248,9 @@ public class EditPicture extends Activity{
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int orientation, int width, int height){
         Matrix matrix = new Matrix();
+
+        Log.e(TAG, "Orientation value in rotate: " + orientation);
+
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
                 return bitmap;
@@ -269,5 +280,13 @@ public class EditPicture extends Activity{
         // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
         return resizedBitmap;
+    }
+
+    public Bitmap fixOrientation(Bitmap mBitmap){
+
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            mBitmap = Bitmap.createBitmap(mBitmap , 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
+            return mBitmap;
     }
 }
