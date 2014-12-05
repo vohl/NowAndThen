@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,8 +19,15 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.content.Context;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class EditPicture extends Activity{
@@ -40,10 +48,12 @@ public class EditPicture extends Activity{
     private static int displayHeight;
     private static int displayDensity;
     private static int rotationAngle;
+    private static Context mContext;
     private static final int INDEX_OF_WIDTH = 0;
     private static final int INDEX_OF_HEIGHT = 1;
     private static final int INDEX_OF_DENSITY = 2;
     private static final int STRETCH_CONSTANT = 96;
+    private static final int MEDIA_TYPE_IMAGE = 1;
 
     private OnClickListener btnFinishClickListener = new OnClickListener() {
         @Override
@@ -75,14 +85,6 @@ public class EditPicture extends Activity{
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
 
-        mCircleCut = (Button)findViewById(R.id.circle_cut);
-        mCircleCut.setOnClickListener(btnCircleClickListener);
-
-        mSquareCut = (Button)findViewById(R.id.square_cut);
-        mSquareCut.setOnClickListener(btnSquareClickListener);
-
-        mFinish = (Button)findViewById(R.id.finish_but);
-        mFinish.setOnClickListener(btnFinishClickListener);
 
         mEditableImage = (ImageView)findViewById(R.id.editable_image);
         mEditableImage.setVisibility(View.INVISIBLE);
@@ -209,8 +211,64 @@ public class EditPicture extends Activity{
             mUneditableImage.setVisibility(View.VISIBLE);
         }
 
+
+        mEditableBitmap = combineBitmap(mEditableBitmap, mUneditableBitmap);
+        mEditableImage.setImageBitmap(mEditableBitmap);
+        mEditableImage.setVisibility(View.VISIBLE);
+
+//        int bytes = mEditableBitmap.getByteCount();
+//        ByteBuffer bB = ByteBuffer.allocate(bytes);
+//        mEditableBitmap.copyPixelsToBuffer(bB);
+//        byte[] data = bB.array();
+//
+//        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//        try {
+//            FileOutputStream fos = new FileOutputStream(pictureFile);
+//            fos.write(data);
+//            Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
+//            Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+//            fos.flush();
+//            fos.close();
+//
+//        } catch (FileNotFoundException e) {
+//            Log.d(TAG, "File not found: " + e.getMessage());
+//        } catch (IOException e) {
+//            Log.d(TAG, "Error accessing file: " + e.getMessage());
+//        }
+
     }
 
+    /** Create a File for saving an image or video */
+    private static File getOutputMediaFile(int type){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+//                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+//        // This location works best if you want the created images to be shared
+//        // between applications and persist after your app has been uninstalled.
+//
+//        // Create the storage directory if it does not exist
+//        if (! mediaStorageDir.exists()){
+//            if (! mediaStorageDir.mkdirs()){
+//                Log.d("MyCameraApp", "failed to create directory");
+//                return null;
+//            }
+//        }
+        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                Uri.parse("file://" + "/storage/emulated/0/DCIM/Camera")));
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE){
+            mediaFile = new File("/storage/emulated/0/DCIM/Camera" + File.separator +
+                    "IMG_"+ timeStamp + ".jpg");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -245,7 +303,7 @@ public class EditPicture extends Activity{
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_edit_picture, container, false);
+            View rootView = inflater.inflate(R.layout.activity_edit_picture, container, false);
             return rootView;
         }
     }
@@ -284,6 +342,27 @@ public class EditPicture extends Activity{
         // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
         return resizedBitmap;
+    }
+
+    public Bitmap combineBitmap(Bitmap srcBmp1, Bitmap srcBmp2) {
+        Bitmap combo = Bitmap.createScaledBitmap(srcBmp1, srcBmp1.getWidth(), srcBmp1.getHeight(), false);
+//        Canvas wideBmpCanvas;
+
+        // assume all of the src bitmaps are the same height & width
+//        wideBmp = Bitmap.createBitmap(srcBmps[0].getWidth() * srcBmps.length,
+//                srcBmps[0].getHeight(), srcBitmaps[0].getConfig());
+
+
+        for (int i = 0; i < srcBmp1.getWidth(); i++) {
+            for(int j = 0; j < srcBmp1.getHeight(); j++){
+                if(i < srcBmp1.getWidth()/2)
+                    combo.setPixel(i, j, srcBmp1.getPixel(i, j));
+                else
+                    combo.setPixel(i, j, srcBmp2.getPixel(i, j));
+            }
+        }
+
+        return combo;
     }
 
     public Bitmap fixOrientation(Bitmap mBitmap){

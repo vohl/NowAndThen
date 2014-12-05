@@ -1,5 +1,6 @@
 package amaturehour.nt;
 
+import android.content.Context;
 import android.view.Surface;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.app.Activity;
@@ -30,6 +31,7 @@ import android.os.Environment;
 import java.text.SimpleDateFormat;
 import java.io.FileNotFoundException;
 import java.util.List;
+import android.net.Uri;
 
 public class CustomCamera extends Activity implements PictureCallback, SurfaceHolder.Callback {
     private static final String TAG = "Camera";
@@ -46,6 +48,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private Boolean mIsCapturing;
     private String mFileName;
     private int mOrientation;
+    private static Context mContext;
 
     private static final int MEDIA_TYPE_IMAGE = 1;
     private static final int MID_ORIENTATION_RANGE = 5;
@@ -90,6 +93,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         surfaceHolder.addCallback(this);
 
         mOverlayImage = (ImageView)findViewById(R.id.supperimpose_view);
+        mContext = mOverlayImage.getContext();
         mOverlayImage.setVisibility(View.INVISIBLE);
 
         mIsCapturing = true;
@@ -124,7 +128,10 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
 
 
-        mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, mOverlayBitMap.getWidth(), mOverlayBitMap.getHeight());
+        //mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, mOverlayBitMap.getWidth(), mOverlayBitMap.getHeight());
+
+        if(mOverlayBitMap.getWidth() > mOverlayBitMap.getHeight())
+            mOverlayBitMap = fixOrientation(mOverlayBitMap);
 
         //check to see if we need to resize the bitmap
 
@@ -220,6 +227,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             try{
                 mCamera = Camera.open();
                 mCamera.setDisplayOrientation(90);
+                Camera.Parameters params = mCamera.getParameters();
+                params.setRotation(90);
+                mCamera.setParameters(params);
 
                 mCamera.setPreviewDisplay(mCameraPreview.getHolder());
                 Camera.Parameters parameter = mCamera.getParameters();
@@ -276,24 +286,25 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
-
-        // Create the storage directory if it does not exist
-        if (! mediaStorageDir.exists()){
-            if (! mediaStorageDir.mkdirs()){
-                Log.d("MyCameraApp", "failed to create directory");
-                return null;
-            }
-        }
-
+//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+//                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+//        // This location works best if you want the created images to be shared
+//        // between applications and persist after your app has been uninstalled.
+//
+//        // Create the storage directory if it does not exist
+//        if (! mediaStorageDir.exists()){
+//            if (! mediaStorageDir.mkdirs()){
+//                Log.d("MyCameraApp", "failed to create directory");
+//                return null;
+//            }
+//        }
+        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                Uri.parse("file://" + "/storage/emulated/0/DCIM/Camera")));
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE){
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+            mediaFile = new File("/storage/emulated/0/DCIM/Camera" + File.separator +
                     "IMG_"+ timeStamp + ".jpg");
         } else {
             return null;
@@ -305,6 +316,8 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+
+        Log.e(TAG, "File path: " + pictureFile.toString());
         if (pictureFile == null){
             Log.e(TAG, "Error creating media file, check storage permissions");
             return;
@@ -313,7 +326,10 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
+            Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+            fos.flush();
             fos.close();
+
         } catch (FileNotFoundException e) {
             Log.d(TAG, "File not found: " + e.getMessage());
         } catch (IOException e) {
@@ -378,5 +394,12 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         }
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         return bitmap;
+    }
+
+    public Bitmap fixOrientation(Bitmap mBitmap){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        mBitmap = Bitmap.createBitmap(mBitmap , 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
+        return mBitmap;
     }
 }
