@@ -29,7 +29,7 @@ public class EditPicture extends Activity{
     private Button mCircleCut;
     private Button mFinish;
     private ImageView mUneditableImage;
-    private SurfaceView mEditableImage;
+    private ImageView mEditableImage;
     private String firstFileName;
     private String secondFileName;
     private int mOrientation;
@@ -84,7 +84,7 @@ public class EditPicture extends Activity{
         mFinish = (Button)findViewById(R.id.finish_but);
         mFinish.setOnClickListener(btnFinishClickListener);
 
-        mEditableImage = (SurfaceView)findViewById(R.id.editable_image);
+        mEditableImage = (ImageView)findViewById(R.id.editable_image);
         mEditableImage.setVisibility(View.INVISIBLE);
 
         mUneditableImage = (ImageView)findViewById(R.id.uneditable_image);
@@ -92,6 +92,8 @@ public class EditPicture extends Activity{
 
         Intent intent = getIntent();
         int origin = intent.getFlags();
+
+
 
         if(origin == 1){
             int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
@@ -154,7 +156,9 @@ public class EditPicture extends Activity{
             displayDensity = intent.getIntExtra("Dense", 1);
             rotationAngle = intent.getIntExtra("thisMayNotBeUsed", 1);
             firstFileName = intent.getStringExtra(CustomCamera.UNDERLAY_IMAGE2);
+            Log.e(TAG, "1st File name: " + firstFileName);
             secondFileName = intent.getStringExtra(CustomCamera.OVERLAY_IMAGE2);
+            Log.e(TAG, "2nd File name: " + secondFileName);
             try{
                 ExifInterface exif = new ExifInterface(firstFileName);
                 mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -176,7 +180,7 @@ public class EditPicture extends Activity{
                 Log.i(TAG, "Bitmap success - Not Null");
                 mUneditableImage.setImageBitmap(mUneditableBitmap);
             }
-            //mUneditableImage.setVisibility(View.VISIBLE);
+            mUneditableImage.setVisibility(View.VISIBLE);
 
             try{
                 ExifInterface exif = new ExifInterface(secondFileName);
