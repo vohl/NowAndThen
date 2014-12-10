@@ -321,17 +321,13 @@ public class EditPicture extends Activity{
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // CREATE A MATRIX FOR THE MANIPULATION
-        Matrix matrix = new Matrix();
-        // RESIZE THE BIT MAP
-        matrix.postScale(scaleWidth, scaleHeight);
+        double ratio = ((1.0 * bm.getHeight()) * newWidth) / (bm.getHeight() * newHeight);
+        Log.e(TAG, "ratio: " + ratio);
+        int width = (int) (bm.getWidth() * ratio);
+        int height = (int) (bm.getHeight() * ratio);
 
         // "RECREATE" THE NEW BITMAP
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, width, height, false);
         return resizedBitmap;
     }
 

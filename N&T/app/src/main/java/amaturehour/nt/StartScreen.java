@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.Intent;
@@ -33,22 +34,6 @@ public class StartScreen extends Activity {
     private static final int READ_REQUEST_CODE = 42;
     private String firstSIImage;
 
-    private OnClickListener btnCapturePictureClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            buttonPressed = CAMERA_BUTTON;
-            performFileSearch();
-        }
-    };
-
-    private OnClickListener btnSuperImposeClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            buttonPressed = SUPERIMPOSE_BUTTON;
-            performFileSearch();
-        }
-
-    };
 
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
@@ -155,35 +140,36 @@ public class StartScreen extends Activity {
         setContentView(R.layout.activity_start_screen);
 
         mCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-        mCapturePicture.setOnClickListener(btnCapturePictureClickListener);
+        mCapturePicture.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mCapturePicture.setBackgroundResource(R.drawable.tap_touch);
+                    buttonPressed = CAMERA_BUTTON;
+                    performFileSearch();
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP)
+                    mCapturePicture.setBackgroundResource(R.drawable.tap);
+                return true;
+            }
+        });
 
         mSuperImpose = (Button) findViewById(R.id.btnSuperImpose);
-        mSuperImpose.setOnClickListener(btnSuperImposeClickListener);
+        mSuperImpose.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mSuperImpose.setBackgroundResource(R.drawable.si_touch);
+                    buttonPressed = SUPERIMPOSE_BUTTON;
+                    performFileSearch();
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP)
+                    mSuperImpose.setBackgroundResource(R.drawable.si);
+                return true;
+            }
+        });
         ActionBar actionBar = getActionBar();
         actionBar.hide();
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_start_screen, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 }
