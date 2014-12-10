@@ -5,6 +5,8 @@
     tools:context="amaturehour.nt.EditPicture"
     android:orientation="vertical">
 
+
+
     <ImageView
         android:id="@+id/uneditable_image"
         android:layout_width="match_parent"
@@ -19,6 +21,11 @@
         android:scaleType="centerCrop"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
 
-
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
 
 </RelativeLayout>

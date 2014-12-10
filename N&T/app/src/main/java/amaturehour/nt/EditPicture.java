@@ -21,6 +21,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.content.Context;
+import android.os.Environment;
+import android.widget.ProgressBar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,6 +46,7 @@ public class EditPicture extends Activity{
     private int mOrientation;
     private Bitmap mUneditableBitmap;
     private Bitmap mEditableBitmap;
+    private ProgressBar mProgressBar;
 
     private static int displayWidth;
     private static int displayHeight;
@@ -92,6 +95,9 @@ public class EditPicture extends Activity{
 
         mUneditableImage = (ImageView)findViewById(R.id.uneditable_image);
         mUneditableImage.setVisibility(View.INVISIBLE);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        mProgressBar.setVisibility(View.INVISIBLE);
 
         Intent intent = getIntent();
         int origin = intent.getFlags();
@@ -215,10 +221,11 @@ public class EditPicture extends Activity{
 
         Bitmap[] bmpArray = {mEditableBitmap, mUneditableBitmap};
 
-       new ProcessImageTask().execute(bmpArray);
-//       mEditableImage.setVisibility(View.INVISIBLE);
-//       mEditableBitmap = combineBitmap(bmpArray);
-//       mEditableImage.setImageBitmap(mEditableBitmap);
+        mContext = mEditableImage.getContext();
+
+        mProgressBar.setVisibility(View.VISIBLE);
+
+        new ProcessImageTask().execute(bmpArray);
 
     }
 
@@ -227,8 +234,8 @@ public class EditPicture extends Activity{
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
-//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "MyCameraApp");
 //        // This location works best if you want the created images to be shared
 //        // between applications and persist after your app has been uninstalled.
 //
@@ -330,12 +337,6 @@ public class EditPicture extends Activity{
 
     public Bitmap combineBitmap(Bitmap[] srcBmp) {
         Bitmap combo = Bitmap.createScaledBitmap(srcBmp[0], srcBmp[0].getWidth(), srcBmp[0].getHeight(), false);
-//        Canvas wideBmpCanvas;
-
-        // assume all of the src bitmaps are the same height & width
-//        wideBmp = Bitmap.createBitmap(srcBmps[0].getWidth() * srcBmps.length,
-//                srcBmps[0].getHeight(), srcBitmaps[0].getConfig());
-
 
         for (int i = 0; i < srcBmp[0].getWidth(); i++) {
             for(int j = 0; j < srcBmp[0].getHeight(); j++){
@@ -345,12 +346,10 @@ public class EditPicture extends Activity{
                     combo.setPixel(i, j, srcBmp[1].getPixel(i, j));
             }
         }
-
         return combo;
     }
 
     public Bitmap fixOrientation(Bitmap mBitmap){
-
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
             mBitmap = Bitmap.createBitmap(mBitmap , 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
@@ -361,32 +360,29 @@ public class EditPicture extends Activity{
 
         @Override
         protected Bitmap doInBackground(Bitmap[]... params) {
-            return combineBitmap(params[0]);
+            mEditableBitmap = combineBitmap(params[0]);
+            return mEditableBitmap;
         }
 
         protected void onPostExecute(Bitmap result){
             mEditableImage.setImageBitmap(result);
+            mProgressBar.setVisibility(View.INVISIBLE);
             mEditableImage.setVisibility(View.VISIBLE);
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                mEditableBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
+                Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+                fos.flush();
+                fos.close();
 
-//        int bytes = mEditableBitmap.getByteCount();
-//        ByteBuffer bB = ByteBuffer.allocate(bytes);
-//        mEditableBitmap.copyPixelsToBuffer(bB);
-//        byte[] data = bB.array();
-//
-//        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-//        try {
-//            FileOutputStream fos = new FileOutputStream(pictureFile);
-//            fos.write(data);
-//            Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
-//            Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
-//            fos.flush();
-//            fos.close();
-//
-//        } catch (FileNotFoundException e) {
-//            Log.d(TAG, "File not found: " + e.getMessage());
-//        } catch (IOException e) {
-//            Log.d(TAG, "Error accessing file: " + e.getMessage());
-//        }
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "File not found: " + e.getMessage());
+            } catch (IOException e) {
+                Log.d(TAG, "Error accessing file: " + e.getMessage());
+            }
+
         }
     }
 }
