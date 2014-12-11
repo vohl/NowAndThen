@@ -1,6 +1,7 @@
 package amaturehour.nt;
 
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.app.Activity;
@@ -64,15 +65,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private static int displayDensity;
     private static int rotationAngle;
 
-    private OnClickListener btnCaptureClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            captureImage(v);
-        }
-    };
-
     public void captureImage(View view){
-
         mCamera.takePicture(null, null, this);
     }
 
@@ -86,7 +79,17 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         decorView.setSystemUiVisibility(uiOptions);
 
         mCapture = (Button) findViewById(R.id.btnCapture);
-        mCapture.setOnClickListener(btnCaptureClickListener);
+        mCapture.setOnTouchListener(new View.OnTouchListener(){
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mCapture.setBackgroundResource(R.drawable.camerabutton_touch);
+                    captureImage(v);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP)
+                    mCapture.setBackgroundResource(R.drawable.camerabutton);
+                return true;
+            }
+        });
 
         mCameraPreview = (SurfaceView)findViewById(R.id.preview_view);
         final SurfaceHolder surfaceHolder = mCameraPreview.getHolder();
@@ -125,10 +128,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
         //not sure if we need this
         mOverlayBitMap.setDensity(displayDensity);
-
-
-
-        //mOverlayBitMap = rotateBitmap(mOverlayBitMap, mOrientation, mOverlayBitMap.getWidth(), mOverlayBitMap.getHeight());
 
         if(mOverlayBitMap.getWidth() > mOverlayBitMap.getHeight())
             mOverlayBitMap = fixOrientation(mOverlayBitMap);
@@ -206,8 +205,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-//        Log.e(TAG, "height: " + bm.getHeight() * newHeight);
-//        Log.e(TAG, "width: " + bm.getWidth() * newWidth);
         double ratio = ((1.0 * bm.getWidth()) * newWidth) / (bm.getHeight() * newHeight);
         Log.e(TAG, "ratio: " + ratio);
         int width = (int) (bm.getWidth() * ratio);

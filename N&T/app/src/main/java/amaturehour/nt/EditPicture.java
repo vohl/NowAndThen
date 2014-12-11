@@ -1,7 +1,10 @@
 package amaturehour.nt;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +26,7 @@ import android.widget.ImageView;
 import android.content.Context;
 import android.os.Environment;
 import android.widget.ProgressBar;
+import android.app.Dialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -227,7 +231,50 @@ public class EditPicture extends Activity{
 
         new ProcessImageTask().execute(bmpArray);
 
+
+
+
+
     }
+
+//    private class saveImageDialogFragment extends DialogFragment {
+//
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//            AlertDialog.Builder builder = new AlertDialog.Builder(mEditableImage.getContext());
+//            builder.setMessage("Would you like to save this image?");
+////ask the user if they want to save this image
+//            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//                    try {
+//                        FileOutputStream fos = new FileOutputStream(pictureFile);
+//                        mEditableBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+//                        Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
+//                        Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+//                        fos.flush();
+//                        fos.close();
+//
+//                    } catch (FileNotFoundException e) {
+//                        Log.d(TAG, "File not found: " + e.getMessage());
+//                    } catch (IOException e) {
+//                        Log.d(TAG, "Error accessing file: " + e.getMessage());
+//                    }
+//                }
+//            });
+//
+//            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    Intent customCameraIntent = new Intent(mEditableImage.getContext(), CustomCamera.class);
+//                    startActivity(customCameraIntent);
+//                }
+//            });
+//
+//            //create the alert dialog
+//            return builder.create();
+//        }
+//    }
 
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(int type){
@@ -372,13 +419,11 @@ public class EditPicture extends Activity{
                 Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
                 fos.flush();
                 fos.close();
-
-            } catch (FileNotFoundException e) {
-                Log.d(TAG, "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d(TAG, "Error accessing file: " + e.getMessage());
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "File not found: " + e.getMessage());
+                } catch (IOException e) {
+                    Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
-
         }
     }
 }
