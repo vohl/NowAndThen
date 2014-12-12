@@ -33,6 +33,7 @@ public class StartScreen extends Activity {
     private int buttonPressed;
     private static final int READ_REQUEST_CODE = 42;
     private String firstSIImage;
+    private int counter;
 
 
     /**
@@ -98,12 +99,16 @@ public class StartScreen extends Activity {
                     customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
                     startActivity(customCameraIntent);
                 }
-                else if(buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage == null) {
+                else if((buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage == null) ||
+                        (buttonPressed == SUPERIMPOSE_BUTTON && counter >= 2)) {
+
+                    counter = 1;
                     firstSIImage = overlayImage;
                     buttonPressed = SUPERIMPOSE_BUTTON;
                     performFileSearch();
                 }
                 else if(buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage != null){
+                    counter++;
                     Intent editPictureIntent = new Intent(this, EditPicture.class);
                     editPictureIntent.addFlags(1);
                     editPictureIntent.putExtra("ScreenInformation", screenInfo);
@@ -139,6 +144,7 @@ public class StartScreen extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_screen);
 
+        counter = 0;
         mCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
         mCapturePicture.setOnTouchListener(new View.OnTouchListener() {
             @Override
