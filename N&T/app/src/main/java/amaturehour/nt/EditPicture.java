@@ -2,7 +2,6 @@ package amaturehour.nt;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,21 +13,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.content.Context;
 import android.os.Environment;
 import android.widget.ProgressBar;
 import android.app.Dialog;
+import android.view.Window;
 
-import java.util.logging.Handler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -51,6 +49,7 @@ public class EditPicture extends Activity{
     private Bitmap mUneditableBitmap;
     private Bitmap mEditableBitmap;
     private ProgressBar mProgressBar;
+    private static File savedImage;
 
     private static int displayWidth;
     private static int displayHeight;
@@ -62,27 +61,6 @@ public class EditPicture extends Activity{
     private static final int INDEX_OF_DENSITY = 2;
     private static final int STRETCH_CONSTANT = 96;
     private static final int MEDIA_TYPE_IMAGE = 1;
-
-    private OnClickListener btnFinishClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            return;
-        }
-    };
-
-    private OnClickListener btnCircleClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            return;
-        }
-    };
-
-    private OnClickListener btnSquareClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            return;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,13 +85,12 @@ public class EditPicture extends Activity{
         int origin = intent.getFlags();
 
 
-
         if(origin == 1){
             int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
 
             displayWidth = screenInfo[INDEX_OF_WIDTH];
             //need to add a little vertical stretch because of the action bar dimensions??
-            displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
+            displayHeight = screenInfo[INDEX_OF_HEIGHT];
             displayDensity = screenInfo[INDEX_OF_DENSITY];
             firstFileName = intent.getStringExtra(StartScreen.UNDERLAY_IMAGE);
             secondFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
@@ -233,20 +210,6 @@ public class EditPicture extends Activity{
 
     }
 
-//    public class saveImageDialogFragment extends DialogFragment {
-//
-//        public Dialog onCreateDialog(Bundle savedInstanceState) {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(mEditableImage.getContext());
-//            builder.setMessage("Would you like to save this image?");
-////ask the user if they want to save this image
-//
-
-//
-//            //create the alert dialog
-//            return builder.create();
-//        }
-//    }
-
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(int type){
         // To be safe, you should check that the SDCard is mounted
@@ -268,15 +231,15 @@ public class EditPicture extends Activity{
                 Uri.parse("file://" + "/storage/emulated/0/DCIM/Camera")));
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile;
+        File fileToReturn;
         if (type == MEDIA_TYPE_IMAGE){
-            mediaFile = new File("/storage/emulated/0/DCIM/Camera" + File.separator +
+            fileToReturn = new File("/storage/emulated/0/DCIM/Camera" + File.separator +
                     "IMG_"+ timeStamp + ".jpg");
         } else {
             return null;
         }
 
-        return mediaFile;
+        return fileToReturn;
     }
 
     @Override
@@ -363,6 +326,7 @@ public class EditPicture extends Activity{
         return combo;
     }
 
+    //change orientation of images to portrait
     public Bitmap fixOrientation(Bitmap mBitmap){
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
@@ -370,6 +334,7 @@ public class EditPicture extends Activity{
             return mBitmap;
     }
 
+    //set up a different thread to edit the picture
     private class ProcessImageTask extends AsyncTask<Bitmap[], Void, Bitmap> {
 
         @Override
@@ -386,16 +351,15 @@ public class EditPicture extends Activity{
 
             //ask if user wants to save the image
             AlertDialog.Builder builder = new AlertDialog.Builder(mEditableImage.getContext());
-            builder.setMessage("Would you like to save this image?");
+            builder.setMessage("Save image?");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
                     try {
-                        FileOutputStream fos = new FileOutputStream(pictureFile);
+                        FileOutputStream fos = new FileOutputStream(secondFileName);
                         mEditableBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                        Log.e(TAG, "File written out!!! (theoretically)" + pictureFile.toString());
-                        Log.e(TAG, "File path: " + pictureFile.getAbsolutePath().toString());
+                        Log.e(TAG, "File written out!!! (theoretically)" + secondFileName);
+                        Log.e(TAG, "File path: " + secondFileName);
                         fos.flush();
                         fos.close();
 
@@ -407,15 +371,20 @@ public class EditPicture extends Activity{
                 }
             });
 
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            //if no, delete the image and finish this activity
+            builder.setNegativeButton("Nope", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                   finish();
+                    File fileToDelete = new File(secondFileName);
+                    fileToDelete.delete();
+                    finish();
                 }
             });
 
+            //create the dialog and show it
             Dialog dialog = builder.create();
-
+            Window window = dialog.getWindow();
+            window.setGravity(Gravity.BOTTOM);
             dialog.show();
         }
     }
