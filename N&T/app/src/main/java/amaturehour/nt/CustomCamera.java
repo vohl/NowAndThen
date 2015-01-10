@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Bundle;
@@ -57,6 +58,9 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     private static final int INDEX_OF_HEIGHT = 1;
     private static final int INDEX_OF_DENSITY = 2;
     private static final int STRETCH_CONSTANT = 96;
+    private static final int RESAMPLE_IMAGE = 7;
+
+
     private static int displayWidth;
     private static int displayHeight;
     private static int displayDensity;
@@ -80,11 +84,12 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
                     mCapture.setBackgroundResource(R.drawable.camerabutton_touch);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    mCapture.setBackgroundResource(R.drawable.camerabutton);
                     captureImage(v);
                 }
-                if(event.getAction() == MotionEvent.ACTION_UP)
-                    mCapture.setBackgroundResource(R.drawable.camerabutton);
-                return true;
+                    return true;
             }
         });
 
@@ -118,22 +123,21 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             Log.e(TAG, "Error creating Exif from " + mFileName);
         }
 
-        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE));
+        //set the options to return a bitmap that can fit on any devices screen size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inSampleSize = RESAMPLE_IMAGE;
+        o.outHeight = displayHeight;
+        o.outWidth = displayWidth;
+        o.inMutable = true;
+
+        //get the bitmap to overlay onto the camera view
+        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE), o);
 
         Log.e(TAG, "Bitmap height: " + mOverlayBitMap.getHeight() + " Bitmap width: " + mOverlayBitMap.getWidth());
         Log.e(TAG, "Display height: " + displayHeight + " Display width: " + displayWidth);
 
-        //not sure if we need this
-        mOverlayBitMap.setDensity(displayDensity);
-
         if(mOverlayBitMap.getWidth() > mOverlayBitMap.getHeight())
             mOverlayBitMap = fixOrientation(mOverlayBitMap);
-
-        //check to see if we need to resize the bitmap
-
-        if(mOverlayBitMap.getHeight() > displayHeight || mOverlayBitMap.getWidth() > displayWidth)
-            mOverlayBitMap = getResizedBitmap(mOverlayBitMap, displayHeight, displayWidth);
-
 
         if(mOverlayBitMap == null){
             Log.e(TAG, "Error making the Bitmap - Null");
@@ -340,7 +344,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         startActivity(edit_intent);
     }
 
-    @Override
+    //creating the camera preview
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         if(mCamera != null){
             try{
@@ -388,6 +392,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         return bitmap;
     }
 
+    //Rotates the bitmap to portrait mode
     public Bitmap fixOrientation(Bitmap mBitmap){
         Matrix matrix = new Matrix();
         matrix.postRotate(90);

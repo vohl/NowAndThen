@@ -11,11 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.content.Intent;
 import android.widget.Button;
 
@@ -91,14 +88,17 @@ public class StartScreen extends Activity {
                 uri = resultData.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
                 String overlayImage = getFileOfUri(uri);
+                Log.e(TAG, "overlayImage: " + overlayImage);
                 Log.e(TAG, "Intent flag we get: " + buttonPressed);
-                //check to see if current intent was called by custom camera
+                //check to see if button pressed was custom camera button
                 if(buttonPressed == CAMERA_BUTTON) {
                     Intent customCameraIntent = new Intent(this, CustomCamera.class);
                     customCameraIntent.putExtra("ScreenInformation", screenInfo);
                     customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
                     startActivity(customCameraIntent);
                 }
+                //check to see if button pressed was superimpose, and if the activity
+                //is returned from another edit activity
                 else if((buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage == null) ||
                         (buttonPressed == SUPERIMPOSE_BUTTON && counter >= 2)) {
 
@@ -107,6 +107,7 @@ public class StartScreen extends Activity {
                     buttonPressed = SUPERIMPOSE_BUTTON;
                     performFileSearch();
                 }
+                //this will be the second image the user is choosing to superimpose
                 else if(buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage != null){
                     counter++;
                     Intent editPictureIntent = new Intent(this, EditPicture.class);
@@ -124,6 +125,7 @@ public class StartScreen extends Activity {
         }
     }
 
+    // Method to get the path to the file that the user wants to superimpose onto
     private String getFileOfUri(Uri uri){
         String[] proj = {MediaStore.Images.Media.DATA};
 
@@ -150,12 +152,13 @@ public class StartScreen extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    mCapturePicture.setBackgroundResource(R.drawable.tap_touch);
+                    mCapturePicture.setBackgroundResource(R.drawable.takeapic);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    mCapturePicture.setBackgroundResource(R.drawable.takeapic_pressed);
                     buttonPressed = CAMERA_BUTTON;
                     performFileSearch();
                 }
-                if(event.getAction() == MotionEvent.ACTION_UP)
-                    mCapturePicture.setBackgroundResource(R.drawable.tap);
                 return true;
             }
         });
@@ -165,12 +168,13 @@ public class StartScreen extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    mSuperImpose.setBackgroundResource(R.drawable.si_touch);
+                    mSuperImpose.setBackgroundResource(R.drawable.supimp_pressed);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    mSuperImpose.setBackgroundResource(R.drawable.supimp);
                     buttonPressed = SUPERIMPOSE_BUTTON;
                     performFileSearch();
                 }
-                if(event.getAction() == MotionEvent.ACTION_UP)
-                    mSuperImpose.setBackgroundResource(R.drawable.si);
                 return true;
             }
         });

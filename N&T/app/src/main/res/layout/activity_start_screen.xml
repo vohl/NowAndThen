@@ -20,19 +20,18 @@
         <Button
             android:id="@+id/btnCapturePicture"
             android:layout_width="250dp"
-            android:layout_height="120dp"
+            android:layout_height="215dp"
             android:gravity="center"
-            android:background="@drawable/tap"
-            android:layout_marginBottom="25dp"/>
+            android:background="@drawable/takeapic_pressed"/>
 
         <Button
             android:id="@+id/btnSuperImpose"
             android:layout_width="250dp"
-            android:layout_height="120dp"
+            android:layout_height="175dp"
             android:gravity="center"
-            android:background="@drawable/si"
+            android:background="@drawable/supimp"
             android:layout_below="@id/btnCapturePicture"
-            android:layout_marginTop="25dp"/>
+            android:layout_marginTop="15dp"/>
     </RelativeLayout>
 
 </LinearLayout>

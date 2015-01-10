@@ -5,7 +5,12 @@
     tools:context="amaturehour.nt.EditPicture"
     android:orientation="vertical">
 
-
+    <amaturehour.nt.DrawingView
+        android:id="@+id/drawing_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="200"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"/>
 
     <ImageView
         android:id="@+id/uneditable_image"
@@ -26,6 +31,34 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_height="100dp"/>
+
+    <SeekBar
+        android:id="@+id/sliderTransparency"
+        android:layout_width="150dp"
+        android:layout_height="35dp"
+        android:layout_alignBottom="@id/uneditable_image"
+        android:layout_toLeftOf="@+id/cut"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="65dp" />
+
+    <Button
+        android:id="@+id/cut"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/cut"/>
+
+    <SeekBar
+        android:id="@+id/sliderRotater"
+        android:layout_width="150dp"
+        android:layout_height="35dp"
+        android:layout_alignBottom="@id/uneditable_image"
+        android:layout_marginTop="50dp"
+        android:layout_toRightOf="@id/cut"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="65dp"/>
 
 </RelativeLayout>
