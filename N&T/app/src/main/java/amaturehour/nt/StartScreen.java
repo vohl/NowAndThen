@@ -87,23 +87,22 @@ public class StartScreen extends Activity {
                 int[] screenInfo = {width, height, density};
                 uri = resultData.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
-                String overlayImage = getFileOfUri(uri);
-                Log.e(TAG, "overlayImage: " + overlayImage);
+                String chosenImage = getFileOfUri(uri);
+                Log.e(TAG, "overlayImage: " + chosenImage);
                 Log.e(TAG, "Intent flag we get: " + buttonPressed);
                 //check to see if button pressed was custom camera button
                 if(buttonPressed == CAMERA_BUTTON) {
                     Intent customCameraIntent = new Intent(this, CustomCamera.class);
                     customCameraIntent.putExtra("ScreenInformation", screenInfo);
-                    customCameraIntent.putExtra(OVERLAY_IMAGE, overlayImage);
+                    customCameraIntent.putExtra(OVERLAY_IMAGE, chosenImage);
                     startActivity(customCameraIntent);
                 }
                 //check to see if button pressed was superimpose, and if the activity
                 //is returned from another edit activity
-                else if((buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage == null) ||
-                        (buttonPressed == SUPERIMPOSE_BUTTON && counter >= 2)) {
+                else if(buttonPressed == SUPERIMPOSE_BUTTON && (firstSIImage == null || counter > 1)) {
 
                     counter = 1;
-                    firstSIImage = overlayImage;
+                    firstSIImage = chosenImage;
                     buttonPressed = SUPERIMPOSE_BUTTON;
                     performFileSearch();
                 }
@@ -114,7 +113,7 @@ public class StartScreen extends Activity {
                     editPictureIntent.addFlags(1);
                     editPictureIntent.putExtra("ScreenInformation", screenInfo);
                     editPictureIntent.putExtra(UNDERLAY_IMAGE, firstSIImage);
-                    editPictureIntent.putExtra(OVERLAY_IMAGE, overlayImage);
+                    editPictureIntent.putExtra(OVERLAY_IMAGE, chosenImage);
                     startActivity(editPictureIntent);
                 }
 

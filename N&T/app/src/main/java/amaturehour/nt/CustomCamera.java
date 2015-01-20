@@ -37,6 +37,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
     public final static String OVERLAY_IMAGE2 = "amaturehour.nt.CUSTOMO";
     public final static String UNDERLAY_IMAGE2 = "amaturehour.nt.CUSTOMU";
 
+    private Intent intent;
     private Camera mCamera;
     private Button mCapture;
     private SeekBar mTransparencySeekBar;
@@ -79,6 +80,39 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
 
+        init();
+
+    }
+
+    //initializes all the global variables, seekbars, and buttons
+    private void init(){
+
+        //get the intent and the data stored with it
+        intent = getIntent();
+        int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
+
+        displayWidth = screenInfo[INDEX_OF_WIDTH];
+        //need to add a little vertical stretch because of the action bar dimensions??
+        displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
+        displayDensity = screenInfo[INDEX_OF_DENSITY];
+
+        //set up the button to capture an image with a touch listener
+        setupCapture();
+
+        //set up the overlay image
+        setupImages();
+
+        //set up the seekbars
+        setupSeekBars();
+
+
+    }
+
+    //sets up the button with a touch listener to capture an image with the camera
+    private void setupCapture(){
+
+        mIsCapturing = true;
+
         mCapture = (Button) findViewById(R.id.btnCapture);
         mCapture.setOnTouchListener(new View.OnTouchListener(){
             public boolean onTouch(View v, MotionEvent event) {
@@ -89,28 +123,24 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
                     mCapture.setBackgroundResource(R.drawable.camerabutton);
                     captureImage(v);
                 }
-                    return true;
+                return true;
             }
         });
 
+        //set up the camera preview view to display what the camera "sees"
         mCameraPreview = (SurfaceView)findViewById(R.id.preview_view);
         final SurfaceHolder surfaceHolder = mCameraPreview.getHolder();
         surfaceHolder.addCallback(this);
+    }
+
+    //sets up the overlay image view and the bitmap to be displayed in that view
+    private void setupImages(){
 
         mOverlayImage = (ImageView)findViewById(R.id.supperimpose_view);
         mContext = mOverlayImage.getContext();
         mOverlayImage.setVisibility(View.INVISIBLE);
 
-        mIsCapturing = true;
-
-        Intent intent = getIntent();
-        int[] screenInfo = intent.getIntArrayExtra("ScreenInformation");
-
-        displayWidth = screenInfo[INDEX_OF_WIDTH];
-        //need to add a little vertical stretch because of the action bar dimensions??
-        displayHeight = screenInfo[INDEX_OF_HEIGHT] + STRETCH_CONSTANT;
-        displayDensity = screenInfo[INDEX_OF_DENSITY];
-
+        //get the file to set up the bitmap in the imageview
         Log.e(TAG, "display width: " + displayWidth + " display height: " + displayHeight);
 
         mFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
@@ -123,7 +153,40 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
             Log.e(TAG, "Error creating Exif from " + mFileName);
         }
 
-        //set the options to return a bitmap that can fit on any devices screen size
+        setupBitmap();
+
+        //set the overlay bitmap onto the overlay image view
+        if(mOverlayBitMap == null){
+            Log.e(TAG, "Error making the Bitmap - Null");
+        }
+        else{
+            Log.i(TAG, "Bitmap success - Not Null");
+            mOverlayImage.setImageBitmap(mOverlayBitMap);
+        }
+
+        //set the transparency to the mid level initially
+        mOverlayImage.setAlpha(MID_TRANSPARENCY);
+        //make the image visible
+        mOverlayImage.setVisibility(View.VISIBLE);
+
+    }
+
+    //initializes the transparency and orientation seekbars with touch listeners
+    private void setupSeekBars(){
+
+        //initialize transparency seekbar and connect a touch listener
+        setupTransparency();
+
+        //initialize rotation seekbar and connect a touch listener
+        setupOrientation();
+
+    }
+
+    //get the current devices display options, and generate a bitmap
+    //based on those options
+    private void setupBitmap(){
+
+        //set the options to return a bitmap that can fit on current devices screen size
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inSampleSize = RESAMPLE_IMAGE;
         o.outHeight = displayHeight;
@@ -136,25 +199,19 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         Log.e(TAG, "Bitmap height: " + mOverlayBitMap.getHeight() + " Bitmap width: " + mOverlayBitMap.getWidth());
         Log.e(TAG, "Display height: " + displayHeight + " Display width: " + displayWidth);
 
+        //only supports portrait mode at this time
         if(mOverlayBitMap.getWidth() > mOverlayBitMap.getHeight())
             mOverlayBitMap = fixOrientation(mOverlayBitMap);
+    }
 
-        if(mOverlayBitMap == null){
-            Log.e(TAG, "Error making the Bitmap - Null");
-        }
-        else{
-            Log.i(TAG, "Bitmap success - Not Null");
-            mOverlayImage.setImageBitmap(mOverlayBitMap);
-        }
-        //set the transparency to the mid level initially
-        mOverlayImage.setAlpha(MID_TRANSPARENCY);
-        //make the image visible
-        mOverlayImage.setVisibility(View.VISIBLE);
-
+    //transparency seekbar setup
+    private void setupTransparency(){
         //get and respond to all the changes to the transparency slider
         mTransparencySeekBar = (SeekBar)findViewById(R.id.sliderTransparency);
 
         mTransparencySeekBar.setMax(MAX_TRANSPARENCY);
+
+        //Transparency seekbar is initially set to 50%
         mTransparencySeekBar.setProgress(MID_TRANSPARENCY);
 
         mTransparencySeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -173,22 +230,27 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
             }
         });
+    }
+
+    //orientation seekbar setup
+    private void setupOrientation(){
 
         //get and respond to all the changes to the orientation slider
         mOrientationSeekBar = (SeekBar)findViewById(R.id.sliderRotater);
 
+        //initial orientation is set to vertical
         mOrientationSeekBar.setProgress(MID_ORIENTATION);
 
-
+        //listen for changes to orientation
         mOrientationSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-               Log.i(TAG, "Progress before gravity: " + progress);
-               progress -= MID_ORIENTATION;
-               if((progress <= MID_ORIENTATION_RANGE && progress >= 0) ||
-                       (progress <= 0 && progress >= -MID_ORIENTATION_RANGE)) {
-                   progress = 0;
-               }
+                Log.i(TAG, "Progress before gravity: " + progress);
+                progress -= MID_ORIENTATION;
+                if((progress <= MID_ORIENTATION_RANGE && progress >= 0) ||
+                        (progress <= 0 && progress >= -MID_ORIENTATION_RANGE)) {
+                    progress = 0;
+                }
                 Log.i(TAG, "Progress after gravity: " + progress);
                 rotationAngle = progress;
                 mOverlayImage.setRotation(progress);
@@ -202,18 +264,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
 
             }
         });
-
-    }
-
-    public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-        double ratio = ((1.0 * bm.getWidth()) * newWidth) / (bm.getHeight() * newHeight);
-        Log.e(TAG, "ratio: " + ratio);
-        int width = (int) (bm.getWidth() * ratio);
-        int height = (int) (bm.getHeight() * ratio);
-
-        // "RECREATE" THE NEW BITMAP
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, width, height, false);
-        return resizedBitmap;
     }
 
     @Override
@@ -226,7 +276,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
                 Camera.Parameters params = mCamera.getParameters();
                 params.setRotation(90);
                 mCamera.setParameters(params);
-
                 mCamera.setPreviewDisplay(mCameraPreview.getHolder());
                 Camera.Parameters parameter = mCamera.getParameters();
                 List<Camera.Size> sizes = parameter.getSupportedPictureSizes();
@@ -368,28 +417,6 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         //NEED TO HANDLE EXCEPTIONS HERE!!!
 //        mCamera.stopPreview();
 //        mCamera.release();
-    }
-
-    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation, int width, int height){
-        Matrix matrix = new Matrix();
-
-        Log.e(TAG, "Orientation value: " + orientation);
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-
-                matrix.setRotate(90);
-                break;
-            default:
-                return bitmap;
-        }
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-        return bitmap;
     }
 
     //Rotates the bitmap to portrait mode

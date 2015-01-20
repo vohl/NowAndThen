@@ -188,7 +188,8 @@ public class EditPicture extends Activity{
         Log.e(TAG, "Uneditable Bitmap: " + firstFileName);
         if(mUneditableBitmap == null)
             Log.e(TAG, "Something's wrong with the file you dummy!!!");
-        mUneditableBitmap.setDensity(displayDensity);
+
+        Log.e(TAG, "orientation" + mOrientation + " UEB width: " + mUneditableBitmap.getWidth() + " UEB height: " + mUneditableBitmap.getHeight());
 
         mUneditableBitmap = rotateBitmap(mUneditableBitmap, mOrientation, mUneditableBitmap.getWidth(), mUneditableBitmap.getHeight());
 
@@ -208,7 +209,8 @@ public class EditPicture extends Activity{
         catch (IOException e){
             Log.e(TAG, "Error creating Exif from " + secondFileName);
         }
-        mEditableBitmap = BitmapFactory.decodeFile(secondFileName);
+
+        mEditableBitmap = BitmapFactory.decodeFile(secondFileName, o);
 
         mEditableBitmap = rotateBitmap(mEditableBitmap, mOrientation, mEditableBitmap.getWidth(), mEditableBitmap.getHeight());
 
