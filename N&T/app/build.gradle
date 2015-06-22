@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.0.2"
 
     defaultConfig {
-        applicationId "amaturehour.nt"
+        applicationId "amaturehour.nowandthen"
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1

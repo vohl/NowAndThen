@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="amaturehour.nt" >
+    package="amaturehour.nowandthen" >
 
     <uses-feature android:name="android.hardware.camera"/>
     <uses-feature android:name="android.hardware.camera2"/>
@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="amaturehour.nt.StartScreen"
+            android:name="amaturehour.nowandthen.StartScreen"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -27,24 +27,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="amaturehour.nt.CustomCamera"
+            android:name="amaturehour.nowandthen.CustomCamera"
             android:label="@string/title_activity_camera"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
-            android:parentActivityName="amaturehour.nt.StartScreen"
+            android:parentActivityName="amaturehour.nowandthen.StartScreen"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="amaturehour.nt.ChoosePicture" />
+                android:value="amaturehour.nowandthen.StartScreen" />
         </activity>
         <activity
-            android:name="amaturehour.nt.EditPicture"
+            android:name="amaturehour.nowandthen.EditPicture"
             android:label="@string/title_activity_edit_picture"
-            android:parentActivityName="amaturehour.nt.StartScreen"
+            android:parentActivityName="amaturehour.nowandthen.StartScreen"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="amaturehour.nt.StartScreen" />
+                android:value="amaturehour.nowandthen.StartScreen" />
         </activity>
     </application>
 

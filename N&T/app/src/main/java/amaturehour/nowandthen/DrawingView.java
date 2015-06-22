@@ -1,6 +1,5 @@
-package amaturehour.nt;
+package amaturehour.nowandthen;
 
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;

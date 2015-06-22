@@ -1,37 +1,85 @@
-package amaturehour.nt;
+package amaturehour.nowandthen;
 
-import android.graphics.Point;
-import android.view.Display;
-import android.app.ActionBar;
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.content.Intent;
+import android.view.ViewGroup;
 import android.widget.Button;
 
+/**
+ * Created by Jericho on 6/22/15.
+ */
+public class StartScreenFragment extends Fragment {
 
-public class StartScreen extends Activity {
+    private static final String TAG = "StartActivityFragment";
+    public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE2";
+    public final static String UNDERLAY_IMAGE = "amaturehour.nt.IMAGE1";
+
+    private static final int CAMERA_BUTTON = 1;
+    private static final int SUPERIMPOSE_BUTTON = 2;
+    private static final int READ_REQUEST_CODE = 42;
+
+    private int counter;
+    private int buttonPressed;
+
+    private String firstSIImage;
 
     private Button mCapturePicture;
     private Button mSuperImpose;
 
-    private static final String TAG = "StartActivity";
-    public final static String OVERLAY_IMAGE = "amaturehour.nt.IMAGE2";
-    public final static String UNDERLAY_IMAGE = "amaturehour.nt.IMAGE1";
-    private static final int CAMERA_BUTTON = 1;
-    private static final int SUPERIMPOSE_BUTTON = 2;
-    private int buttonPressed;
-    private static final int READ_REQUEST_CODE = 42;
-    private String firstSIImage;
-    private int counter;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_startscreen,
+                container, false);
 
+        counter = 0;
+
+        mCapturePicture = (Button) view.findViewById(R.id.btnCapturePicture);
+        mCapturePicture.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mCapturePicture.setBackgroundResource(R.drawable.takeapic);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    mCapturePicture.setBackgroundResource(R.drawable.takeapic_pressed);
+                    buttonPressed = CAMERA_BUTTON;
+                    performFileSearch();
+                }
+                return true;
+            }
+        });
+
+        mSuperImpose = (Button) view.findViewById(R.id.btnSuperImpose);
+        mSuperImpose.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mSuperImpose.setBackgroundResource(R.drawable.supimp_pressed);
+                }
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    mSuperImpose.setBackgroundResource(R.drawable.supimp);
+                    buttonPressed = SUPERIMPOSE_BUTTON;
+                    performFileSearch();
+                }
+                return true;
+            }
+        });
+
+        return view;
+    }
 
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
@@ -67,7 +115,7 @@ public class StartScreen extends Activity {
         // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
         // response to some other intent, and the code below shouldn't run at all.
 
-        if (requestCode == READ_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == READ_REQUEST_CODE && resultCode == getActivity().RESULT_OK) {
             // The document selected by the user won't be returned in the intent.
             // Instead, a URI to that document will be contained in the return intent
             // provided to this method as a parameter.
@@ -75,9 +123,9 @@ public class StartScreen extends Activity {
             Uri uri;
             if (resultData != null) {
                 //get the screen density, width, and height from the device display
-                Context appContext = getApplicationContext();
+                Context appContext = getActivity().getApplicationContext();
                 int density = appContext.getResources().getDisplayMetrics().densityDpi;
-                Display display = getWindowManager().getDefaultDisplay();
+                Display display = getActivity().getWindowManager().getDefaultDisplay();
                 Point size = new Point();
                 display.getSize(size);
                 int width = size.x;
@@ -92,7 +140,7 @@ public class StartScreen extends Activity {
                 Log.e(TAG, "Intent flag we get: " + buttonPressed);
                 //check to see if button pressed was custom camera button
                 if(buttonPressed == CAMERA_BUTTON) {
-                    Intent customCameraIntent = new Intent(this, CustomCamera.class);
+                    Intent customCameraIntent = new Intent(getActivity(), CustomCamera.class);
                     customCameraIntent.putExtra("ScreenInformation", screenInfo);
                     customCameraIntent.putExtra(OVERLAY_IMAGE, chosenImage);
                     startActivity(customCameraIntent);
@@ -109,7 +157,7 @@ public class StartScreen extends Activity {
                 //this will be the second image the user is choosing to superimpose
                 else if(buttonPressed == SUPERIMPOSE_BUTTON && firstSIImage != null){
                     counter++;
-                    Intent editPictureIntent = new Intent(this, EditPicture.class);
+                    Intent editPictureIntent = new Intent(getActivity(), EditPicture.class);
                     editPictureIntent.addFlags(1);
                     editPictureIntent.putExtra("ScreenInformation", screenInfo);
                     editPictureIntent.putExtra(UNDERLAY_IMAGE, firstSIImage);
@@ -128,7 +176,7 @@ public class StartScreen extends Activity {
     private String getFileOfUri(Uri uri){
         String[] proj = {MediaStore.Images.Media.DATA};
 
-        CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), uri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 
@@ -140,45 +188,5 @@ public class StartScreen extends Activity {
         return uriString;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start_screen);
-
-        counter = 0;
-        mCapturePicture = (Button) findViewById(R.id.btnCapturePicture);
-        mCapturePicture.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    mCapturePicture.setBackgroundResource(R.drawable.takeapic);
-                }
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    mCapturePicture.setBackgroundResource(R.drawable.takeapic_pressed);
-                    buttonPressed = CAMERA_BUTTON;
-                    performFileSearch();
-                }
-                return true;
-            }
-        });
-
-        mSuperImpose = (Button) findViewById(R.id.btnSuperImpose);
-        mSuperImpose.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                    mSuperImpose.setBackgroundResource(R.drawable.supimp_pressed);
-                }
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    mSuperImpose.setBackgroundResource(R.drawable.supimp);
-                    buttonPressed = SUPERIMPOSE_BUTTON;
-                    performFileSearch();
-                }
-                return true;
-            }
-        });
-        ActionBar actionBar = getActionBar();
-        actionBar.hide();
-    }
-
 }
+

@@ -1,8 +1,7 @@
-package amaturehour.nt;
+package amaturehour.nowandthen;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,11 +13,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,7 +25,6 @@ import android.widget.ProgressBar;
 import android.app.Dialog;
 import android.view.Window;
 import android.widget.SeekBar;
-import android.util.DisplayMetrics;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -164,8 +160,8 @@ public class EditPicture extends Activity{
         displayWidth = screenInfo[INDEX_OF_WIDTH];
         displayHeight = screenInfo[INDEX_OF_HEIGHT];
         displayDensity = screenInfo[INDEX_OF_DENSITY];
-        firstFileName = intent.getStringExtra(StartScreen.UNDERLAY_IMAGE);
-        secondFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
+        firstFileName = intent.getStringExtra(StartScreenFragment.UNDERLAY_IMAGE);
+        secondFileName = intent.getStringExtra(StartScreenFragment.OVERLAY_IMAGE);
         try {
             ExifInterface exif = new ExifInterface(firstFileName);
             mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);

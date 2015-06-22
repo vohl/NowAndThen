@@ -1,4 +1,4 @@
-package amaturehour.nt;
+package amaturehour.nowandthen;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Bundle;
@@ -143,7 +142,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         //get the file to set up the bitmap in the imageview
         Log.e(TAG, "display width: " + displayWidth + " display height: " + displayHeight);
 
-        mFileName = intent.getStringExtra(StartScreen.OVERLAY_IMAGE);
+        mFileName = intent.getStringExtra(StartScreenFragment.OVERLAY_IMAGE);
         try {
             ExifInterface exif = new ExifInterface(mFileName);
             mOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -194,7 +193,7 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         o.inMutable = true;
 
         //get the bitmap to overlay onto the camera view
-        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreen.OVERLAY_IMAGE), o);
+        mOverlayBitMap = BitmapFactory.decodeFile(intent.getStringExtra(StartScreenFragment.OVERLAY_IMAGE), o);
 
         Log.e(TAG, "Bitmap height: " + mOverlayBitMap.getHeight() + " Bitmap width: " + mOverlayBitMap.getWidth());
         Log.e(TAG, "Display height: " + displayHeight + " Display width: " + displayWidth);
