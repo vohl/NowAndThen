@@ -1,6 +1,7 @@
 package amaturehour.nowandthen;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -43,6 +44,7 @@ public class StartScreenFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_startscreen,
                 container, false);
+
 
         counter = 0;
 
@@ -163,6 +165,7 @@ public class StartScreenFragment extends Fragment {
                     editPictureIntent.putExtra(UNDERLAY_IMAGE, firstSIImage);
                     editPictureIntent.putExtra(OVERLAY_IMAGE, chosenImage);
                     startActivity(editPictureIntent);
+
                 }
 
             }

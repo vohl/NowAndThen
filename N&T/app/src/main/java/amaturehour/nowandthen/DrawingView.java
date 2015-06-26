@@ -15,7 +15,7 @@ import android.content.Context;
  * Created by Jericho on 1/5/15.
  */
 
-public class DrawingView extends View{
+public class DrawingView extends View {
 
     protected Paint mPaint;
     protected Bitmap mBitmap;
