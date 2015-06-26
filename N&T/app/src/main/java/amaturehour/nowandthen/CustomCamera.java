@@ -1,10 +1,10 @@
 package amaturehour.nowandthen;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Environment;
 import android.view.MotionEvent;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,7 +32,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import android.net.Uri;
 
-public class CustomCamera extends Activity implements PictureCallback, SurfaceHolder.Callback {
+public class CustomCamera extends Fragment implements PictureCallback, SurfaceHolder.Callback {
     private static final String TAG = "Camera";
     public final static String OVERLAY_IMAGE2 = "amaturehour.nt.CUSTOMO";
     public final static String UNDERLAY_IMAGE2 = "amaturehour.nt.CUSTOMU";
