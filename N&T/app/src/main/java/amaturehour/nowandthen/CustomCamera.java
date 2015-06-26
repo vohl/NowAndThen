@@ -1,6 +1,7 @@
 package amaturehour.nowandthen;
 
 import android.content.Context;
+import android.os.Environment;
 import android.view.MotionEvent;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.app.Activity;
@@ -330,19 +331,19 @@ public class CustomCamera extends Activity implements PictureCallback, SurfaceHo
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
-//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES), "MyCameraApp");
-//        // This location works best if you want the created images to be shared
-//        // between applications and persist after your app has been uninstalled.
-//
-//        // Create the storage directory if it does not exist
-//        if (! mediaStorageDir.exists()){
-//            if (! mediaStorageDir.mkdirs()){
-//                Log.d("MyCameraApp", "failed to create directory");
-//                return null;
-//            }
-//        }
-        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "Now&ThenApp");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                Log.d("Now&ThenApp", "failed to create directory");
+                return null;
+            }
+        }
+        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
                 Uri.parse("file://" + "/storage/emulated/0/DCIM/Camera")));
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
